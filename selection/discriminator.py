@@ -5,8 +5,8 @@ import tensorflow as tf
 import sklearn.ensemble as scikit
 import dadrah.selection.quantile_regression as qr
 import case_paths.jet_sample as js
-import vande.training as train
-import vande.vae.layers as layers
+import case_vae.training as train
+import case_vae.vae.layers as layers
 from keras.callbacks import LambdaCallback, Callback
 
 class GetWeights(Callback):
