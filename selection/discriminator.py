@@ -333,118 +333,9 @@ class QRDiscriminator_KerasAPI(QRDiscriminator):
         return predicted
 
 
-class L1QRDiscriminator_KerasAPI(QRDiscriminator):
-    """docstring for QRDiscriminator_KerasAPI"""
-    def __init__(self, **kwargs):
-        super(L1QRDiscriminator_KerasAPI, self).__init__(**kwargs)
-
-    def fit(self, train_sample, valid_sample):
-        # prepare training set
-        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample)
-
-        self.model = qr.Lambda1QuantileRegression(quantile=self.quantile, x_mu_std=(np.mean(x_train), np.std(x_train)), **self.model_params).build()
-        print(x_train)
-        print(y_train)
-        #gw = GetWeights()
-        self.history = self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_sz, verbose=2, validation_data=(x_valid, y_valid), shuffle=True, \
-                                      callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1), tf.keras.callbacks.ReduceLROnPlateau(factor=0.2, patience=3, verbose=1)])
-
-        #for epoch,weights in weights_dict.items():
-        #    print("Weights for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-        #    print("Bias for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-
-        return self.history.history['loss'], self.history.history['val_loss']
-
-    def predict(self, data):
-        if isinstance(data, js.JetSample):
-            data = data[self.mjj_key]
-        xx = data #self.scale_input(data)
-        #print("HERE")
-        #print(xx)
-
-        predicted = self.model.predict(xx).flatten() 
-        # return self.unscale_output(predicted)
-        return predicted
-
-class L2QRDiscriminator_KerasAPI(LQRDiscriminator):
-    """docstring for QRDiscriminator_KerasAPI"""
-    def __init__(self, **kwargs):
-        super(L2QRDiscriminator_KerasAPI, self).__init__(**kwargs)
-
-    def fit(self, train_sample, valid_sample):
-        # prepare training set
-        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample)
-
-        self.model = qr.Lambda2QuantileRegression(quantile=self.quantile, x_mu_std=(np.mean(x_train), np.std(x_train)), **self.model_params).build()
-        print(x_train)
-        print(y_train)
-        #gw = GetWeights()
-        self.history = self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_sz, verbose=2, validation_data=(x_valid, y_valid), shuffle=True, \
-                                      callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1), tf.keras.callbacks.ReduceLROnPlateau(factor=0.2, patience=3, verbose=1)])
-
-        #for epoch,weights in weights_dict.items():
-        #    print("Weights for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-        #    print("Bias for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-
-        return self.history.history['loss'], self.history.history['val_loss']
-
-    def predict(self, data):
-        if isinstance(data, js.JetSample):
-            data = data[self.mjj_key]
-        xx = data #self.scale_input(data)
-        #print("HERE")
-        #print(xx)
-
-        predicted = self.model.predict(xx).flatten() 
-        # return self.unscale_output(predicted)
-        return predicted
 
 
-class L3QRDiscriminator_KerasAPI(QRDiscriminator):
-    """docstring for QRDiscriminator_KerasAPI"""
-    def __init__(self, **kwargs):
-        super(L3QRDiscriminator_KerasAPI, self).__init__(**kwargs)
-
-    def fit(self, train_sample, valid_sample):
-        # prepare training set
-        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample)
-
-        self.model = qr.Lambda3QuantileRegression(quantile=self.quantile, x_mu_std=(np.mean(x_train), np.std(x_train)), **self.model_params).build()
-        print(x_train)
-        print(y_train)
-        #gw = GetWeights()
-        self.history = self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_sz, verbose=2, validation_data=(x_valid, y_valid), shuffle=True, \
-                                      callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1), tf.keras.callbacks.ReduceLROnPlateau(factor=0.2, patience=3, verbose=1)])
-
-        #for epoch,weights in weights_dict.items():
-        #    print("Weights for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-        #    print("Bias for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-
-        return self.history.history['loss'], self.history.history['val_loss']
-
-    def predict(self, data):
-        if isinstance(data, js.JetSample):
-            data = data[self.mjj_key]
-        xx = data #self.scale_input(data)
-        #print("HERE")
-        #print(xx)
-
-        predicted = self.model.predict(xx).flatten() 
-        # return self.unscale_output(predicted)
-        return predicted
-
-
-
-
-
-
-class L4QRDiscriminator_KerasAPI(QRDiscriminator):
+class LambdaQRDiscriminator_KerasAPI(QRDiscriminator):
     """docstring for QRDiscriminator_KerasAPI"""
     def __init__(self, **kwargs):
         super(L4QRDiscriminator_KerasAPI, self).__init__(**kwargs)
@@ -453,7 +344,7 @@ class L4QRDiscriminator_KerasAPI(QRDiscriminator):
         # prepare training set
         (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample)
 
-        self.model = qr.Lambda4QuantileRegression(quantile=self.quantile, x_mu_std=(np.mean(x_train), np.std(x_train)), **self.model_params).build()
+        self.model = qr.LambdaQuantileRegression(quantile=self.quantile, x_mu_std=(np.mean(x_train), np.std(x_train)), **self.model_params).build()
         print(x_train)
         print(y_train)
         #gw = GetWeights()
@@ -480,77 +371,6 @@ class L4QRDiscriminator_KerasAPI(QRDiscriminator):
         return predicted
         
 
-
-class L5QRDiscriminator_KerasAPI(QRDiscriminator):
-    """docstring for QRDiscriminator_KerasAPI"""
-    def __init__(self, **kwargs):
-        super(L5QRDiscriminator_KerasAPI, self).__init__(**kwargs)
-
-    def fit(self, train_sample, valid_sample):
-        # prepare training set
-        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample)
-
-        self.model = qr.Lambda5QuantileRegression(quantile=self.quantile, x_mu_std=(np.mean(x_train), np.std(x_train)), **self.model_params).build()
-        print(x_train)
-        print(y_train)
-        #gw = GetWeights()
-        self.history = self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_sz, verbose=2, validation_data=(x_valid, y_valid), shuffle=True, \
-                                      callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1), tf.keras.callbacks.ReduceLROnPlateau(factor=0.2, patience=3, verbose=1)])
-
-        #for epoch,weights in weights_dict.items():
-        #    print("Weights for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-        #    print("Bias for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-
-        return self.history.history['loss'], self.history.history['val_loss']
-
-    def predict(self, data):
-        if isinstance(data, js.JetSample):
-            data = data[self.mjj_key]
-        xx = data #self.scale_input(data)
-        #print("HERE")
-        #print(xx)
-
-        predicted = self.model.predict(xx).flatten() 
-        # return self.unscale_output(predicted)
-        return predicted
-
-
-class L6QRDiscriminator_KerasAPI(QRDiscriminator):
-    """docstring for QRDiscriminator_KerasAPI"""
-    def __init__(self, **kwargs):
-        super(L6QRDiscriminator_KerasAPI, self).__init__(**kwargs)
-
-    def fit(self, train_sample, valid_sample):
-        # prepare training set
-        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample)
-
-        self.model = qr.Lambda6QuantileRegression(quantile=self.quantile, x_mu_std=(np.mean(x_train), np.std(x_train)), **self.model_params).build()
-        print(x_train)
-        print(y_train)
-        #gw = GetWeights()
-        self.history = self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_sz, verbose=2, validation_data=(x_valid, y_valid), shuffle=True, \
-                                      callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1), tf.keras.callbacks.ReduceLROnPlateau(factor=0.2, patience=3, verbose=1)])
-
-        #for epoch,weights in weights_dict.items():
-        #    print("Weights for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-        #    print("Bias for 2nd Layer of epoch #",epoch+1)
-        #    print(weights)
-
-        return self.history.history['loss'], self.history.history['val_loss']
-
-    def predict(self, data):
-        if isinstance(data, js.JetSample):
-            data = data[self.mjj_key]
-        xx = data #self.scale_input(data)
-        #print("HERE")
-        #print(xx)
-
-        predicted = self.model.predict(xx).flatten() 
-        # return self.unscale_output(predicted)
-        return predicted
 
 
 class LBSQRDiscriminator_KerasAPI(QRDiscriminator):

@@ -1,109 +1,22 @@
 import os
 
-import dadrah.selection.discriminator as disc
-import dadrah.selection.loss_strategy as lost
-import dadrah.util.string_constants_util as stco
-import vande.training as train
-
-def train_L1QR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
-
-    # train QR with lambda layer on qcd-signal-injected sample and quantile q
-    
-    print('\ntraining QR for quantile {}'.format(quantile))    
-    #discriminator = disc.QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    print("YYYYYY")
-    lambda_discriminator = disc.L1QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=1024, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    losses_train, losses_valid = lambda_discriminator.fit(mixed_train_sample, mixed_valid_sample)
-
-    if plot_loss:
-        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
-        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
-
-    return lambda_discriminator
+import case_qr.selection.discriminator as disc
+import case_qr.selection.loss_strategy as lost
+import case_qr.util.string_constants_util as stco
+#import case_vae.training as train
 
 
-
-
-def train_L2QR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
+def train_LambdaQR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
 
     # train QR with lambda layer on qcd-signal-injected sample and quantile q
     
     print('\ntraining QR for quantile {}'.format(quantile))    
-    #discriminator = disc.QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    lambda_discriminator = disc.L2QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=1024, epochs=params.epochs,  n_layers=5, n_nodes=60)
+    lambda_discriminator = disc.L4QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=200, epochs=params.epochs,  n_layers=5, n_nodes=60)
     losses_train, losses_valid = lambda_discriminator.fit(mixed_train_sample, mixed_valid_sample)
 
-    if plot_loss:
-        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
-        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
-
-    return lambda_discriminator
-
-
-def train_L3QR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
-
-    # train QR with lambda layer on qcd-signal-injected sample and quantile q
-    
-    print('\ntraining QR for quantile {}'.format(quantile))    
-    #discriminator = disc.QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    print("YYYYYY")
-    lambda_discriminator = disc.L3QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=512, epochs=params.epochs,  n_layers=5, n_nodes=50)
-    losses_train, losses_valid = lambda_discriminator.fit(mixed_train_sample, mixed_valid_sample)
-
-    if plot_loss:
-        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
-        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
-
-    return lambda_discriminator
-
-
-def train_L4QR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
-
-    # train QR with lambda layer on qcd-signal-injected sample and quantile q
-    
-    print('\ntraining QR for quantile {}'.format(quantile))    
-    #discriminator = disc.QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    print("YYYYYY")
-#    lambda_discriminator = disc.L4QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=32000, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    lambda_discriminator = disc.L4QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=220, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    losses_train, losses_valid = lambda_discriminator.fit(mixed_train_sample, mixed_valid_sample)
-
-    if plot_loss:
-        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
-        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
-
-    return lambda_discriminator
-
-
-def train_L5QR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
-
-    # train QR with lambda layer on qcd-signal-injected sample and quantile q
-    
-    print('\ntraining QR for quantile {}'.format(quantile))    
-    #discriminator = disc.QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    print("YYYYYY")
-    lambda_discriminator = disc.L5QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=32000, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    losses_train, losses_valid = lambda_discriminator.fit(mixed_train_sample, mixed_valid_sample)
-
-    if plot_loss:
-        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
-        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
-
-    return lambda_discriminator
-
-def train_L6QR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
-
-    # train QR with lambda layer on qcd-signal-injected sample and quantile q
-    
-    print('\ntraining QR for quantile {}'.format(quantile))    
-    #discriminator = disc.QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    print("YYYYYY")
-    lambda_discriminator = disc.L6QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=1024, epochs=params.epochs,  n_layers=5, n_nodes=60)
-    losses_train, losses_valid = lambda_discriminator.fit(mixed_train_sample, mixed_valid_sample)
-
-    if plot_loss:
-        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
-        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
+    #if plot_loss:
+    #    plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
+    #    train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
 
     return lambda_discriminator
 
@@ -113,13 +26,12 @@ def train_LBSQR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_l
     # train QR with lambda layer on qcd-signal-injected sample and quantile q
     
     print('\ntraining QR for quantile {}'.format(quantile))    
-    #discriminator = disc.QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=60)
     lambda_discriminator = disc.LBSQRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=150, epochs=params.epochs,  n_layers=5, n_nodes=60)
     losses_train, losses_valid = lambda_discriminator.fit(mixed_train_sample, mixed_valid_sample)
 
-    if plot_loss:
-        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
-        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
+    #if plot_loss:
+    #    plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
+    #    train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
 
     return lambda_discriminator
 
@@ -128,13 +40,13 @@ def train_QR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss
 
     # train QR on qcd-signal-injected sample and quantile q
     
-    print('\ntraining QR for quantile {}'.format(quantile))    
-    discriminator = disc.QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=20000, epochs=params.epochs,  n_layers=8, n_nodes=80)
+    print('\ntraining QR for quantile {}'.format(quantile))
+    discriminator = disc.QRDiscriminator_KerasAPI(quantile=quantile, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=200, epochs=params.epochs,  n_layers=8, n_nodes=80)
     losses_train, losses_valid = discriminator.fit(mixed_train_sample, mixed_valid_sample)
 
-    if plot_loss:
-        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
-        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
+    #if plot_loss:
+    #    plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantile, xsec, params.strategy_id)
+    #    train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
 
     return discriminator
 
@@ -146,13 +58,12 @@ def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, plot_
     print("###################")
     print(f'\ntraining QR for quantile {quantiles}')
     print("###################")
-    #vqr_discriminator = disc.VQRv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=30)
     vqr_discriminator = disc.VQRv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=160, epochs=params.epochs,  n_layers=5, n_nodes=10)
     losses_train, losses_valid = vqr_discriminator.fit(mixed_train_sample, mixed_valid_sample)
     
-    if plot_loss:
-        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantiles, xsec, params.strategy_id)
-        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
+    #if plot_loss:
+    #    plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantiles, xsec, params.strategy_id)
+    #    train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
    
     return vqr_discriminator
     
