@@ -8,7 +8,7 @@ import numpy as np
     - L1 + L2 > LT
     - L1 | L2 > LT
     - L1 & L2 > LT
-    x ... jet_sample (pofah) or pandas data-frame (or rec-array)
+    x ... jet_sample (case_paths) or pandas data-frame (or rec-array)
 '''
 
 def combine_loss_l1(x):

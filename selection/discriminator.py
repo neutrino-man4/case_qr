@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 import tensorflow as tf
 import sklearn.ensemble as scikit
 import dadrah.selection.quantile_regression as qr
-import pofah.jet_sample as js
+import case_paths.jet_sample as js
 import vande.training as train
 import vande.vae.layers as layers
 from keras.callbacks import LambdaCallback, Callback

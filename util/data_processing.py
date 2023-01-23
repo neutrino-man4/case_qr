@@ -1,5 +1,5 @@
 import os
-import pofah.jet_sample as js
+import case_paths.jet_sample as js
 
 def merge_qcd_base_and_ext_datasets(params, paths, **cuts):
     # read qcd & qcd ext
