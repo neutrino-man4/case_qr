@@ -12,17 +12,17 @@ import sys
 import json
 import pandas as pd
 
-import pofah.jet_sample as js
-import pofah.util.sample_factory as sf
-import pofah.util.experiment as ex
-import pofah.path_constants.sample_dict_file_parts_reco as sdfr
-import pofah.path_constants.sample_dict_file_parts_selected as sdfs
-import dadrah.selection.discriminator as disc
-import dadrah.selection.loss_strategy as lost
-import dadrah.selection.qr_workflow as qrwf
+import case_paths.jet_sample as js
+import case_paths.util.sample_factory as sf
+import case_paths.util.experiment as ex
+import case_paths.path_constants.sample_dict_file_parts_reco as sdfr
+import case_paths.path_constants.sample_dict_file_parts_selected as sdfs
+import case_qr.selection.discriminator as disc
+import case_qr.selection.loss_strategy as lost
+import case_qr.selection.qr_workflow as qrwf
 import analysis.analysis_discriminator as andi
-import dadrah.util.data_processing as dapr
-import pofah.phase_space.cut_constants as cuts
+import case_qr.util.data_processing as dapr
+import case_paths.phase_space.cut_constants as cuts
 
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import Ridge
