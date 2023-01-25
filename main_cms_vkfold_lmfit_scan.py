@@ -76,10 +76,9 @@ def fitted_selection(sample, strategy_id, polynomial):
 #           set runtime params
 #****************************************#
 
-iteration = sys.argv[1]
-sample = sys.argv[2] #'grav_3p5_narrow'
-mass = float(sys.argv[3])
-inj = float(sys.argv[4])
+sample = sys.argv[1] #'grav_3p5_narrow'
+mass = float(sys.argv[2])
+inj = float(sys.argv[3])
 
 signal_contamin = { ('na', 0): [[0]]*4,
                     ('na', 100): [[1061], [1100], [1123], [1140]], # narrow signal. number of signal contamination; len(sig_in_training_nums) == len(signals)
