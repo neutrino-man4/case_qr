@@ -8,7 +8,7 @@ import os
 from prettytable import PrettyTable
 import pandas as pd
 
-import anpofah.util.plotting_util as pu
+import case_analysis.util.plotting_util as pu
 import mplhep as hep
 
 
