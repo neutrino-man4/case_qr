@@ -3,7 +3,7 @@ import time
 from abc import ABCMeta, abstractmethod
 import tensorflow as tf
 import sklearn.ensemble as scikit
-import dadrah.selection.quantile_regression as qr
+import case_qr.selection.quantile_regression as qr
 import case_paths.jet_sample as js
 import case_vae.training as train
 import case_vae.vae.layers as layers
