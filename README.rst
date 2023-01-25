@@ -1,7 +1,7 @@
 case_qr : quantile regression for anomalous physics
 =================================================================================
 
-For a vector quantile regression (all quantiles regressed simultaneously), the executable is `main_vkfold_lmfit_scan.py`. The lmfit library is used to smoothen the results after the QR. It also supports signal injection:
+For a vector quantile regression (all quantiles regressed simultaneously), the executable is ``main_vkfold_lmfit_scan.py``. The lmfit library is used to smoothen the results after the QR. It also supports signal injection:
 
 .. code-block:: bash
 
