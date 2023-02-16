@@ -160,7 +160,7 @@ all_coeffs = {}
 nosiginj_chunks = []
 chunks = []
 signal_samples = []
-
+injected_signal_samples = []
 
 for k in range(params.kfold):
 
@@ -217,9 +217,11 @@ for k in range(params.kfold):
             print("Injecting %i signal events"%how_much_to_inject)
             print("%%%%%%%%%%%%%%%%%%%%")
 
-
-            mixed_train_sample, mixed_valid_sample = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.66)
-            #mixed_train_sample, mixed_valid_sample = dapr.inject_signal(qcd_train_sample, sig_sample_ini, inj, train_split = 0.66)
+            if how_much_to_inject == 0:
+               mixed_train_sample, mixed_valid_sample = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.66)
+            else:
+               mixed_train_sample, mixed_valid_sample, injected_signal = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.66)
+               injected_signal_samples.append(injected_signal)
             
             if k == 0:
                 #sig_sample.dump(result_paths.sample_file_path(params.sig_sample_id))
@@ -319,6 +321,11 @@ else:
     for k in range(1,params.kfold):
         final_datasample = final_datasample.merge(chunks[k])
     final_datasample.dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)))
+    final_injected_signal_sample = injected_signal_samples[0]
+    for k in range(1,params.kfold):
+        final_injected_signal_sample = final_injected_signal_sample.merge(injected_signal_samples[k])
+    final_injected_signal_sample.dump(result_paths.sample_file_path(params.sig_sample_id, mkdir=True, overwrite=True, customname='injected_{}_{}'.format(params.sig_sample_id,inj)))
+
 
 sig_cut_dict = {}
 
@@ -371,6 +378,5 @@ for q,quantile in enumerate(quantiles):
         df.to_csv('models_lmfit_csv/sig_lmfit_modelresult_quant_q{:02}.csv'.format(int(inv_quant*100)))
     else:
         df.to_csv('models_lmfit_csv_{}_{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(sample,inj,int(inv_quant*100)))
-        for i,s in enumerate(signal_samples):
-            s.dump(result_paths.sample_file_path(params.sig_sample_id))
-
+    for i,s in enumerate(signal_samples):
+       s.dump(result_paths.sample_file_path(params.sig_sample_id))
