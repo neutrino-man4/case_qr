@@ -33,5 +33,6 @@ def inject_signal(qcd_train_sample, sig_sample, sig_in_training_num, train_split
     mixed_sample = qcd_train_sample.merge(sig_train_sample)
     # split training data into train and validation set
     mixed_sample_train, mixed_sample_valid = js.split_jet_sample_train_test(mixed_sample, train_split)
-    return mixed_sample_train, mixed_sample_valid
+    return mixed_sample_train, mixed_sample_valid, sig_train_sample
+
 

@@ -1,0 +1,747 @@
+Lumi calculation: ...
+Lumi:  26.8
+Lumi calculation done
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+[DataReader] read_jet_features_from_dir(): reading 100000000 events from /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+2974378 events read in 79 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+[DataReader] read_jet_features_from_dir(): reading 100000000 events from /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+2974378 events read in 79 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+[DataReader] read_jet_features_from_dir(): reading 100000000 events from /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+2974378 events read in 79 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+[DataReader] read_jet_features_from_dir(): reading 100000000 events from /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+2974378 events read in 79 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+[DataReader] read_jet_features_from_dir(): reading 100000000 events from /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+2974378 events read in 79 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+[DataReader] read_jet_features_from_dir(): reading all events from /storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+41408 events read in 1 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+Selected QCD events:  qcdSigMCOrigReco
+%%%%%%%%%%%%%%%%%%%%
+Injecting 18 signal events
+%%%%%%%%%%%%%%%%%%%%
+###################
+
+training QR for quantile [0.15, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99]
+###################
+Model: "model"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+input_1 (InputLayer)         [(None, 1)]               0         
+_________________________________________________________________
+Std_Normalize (StdNormalizat (None, 1)                 0         
+_________________________________________________________________
+dense (Dense)                (None, 10)                20        
+_________________________________________________________________
+dense_1 (Dense)              (None, 10)                110       
+_________________________________________________________________
+dense_2 (Dense)              (None, 10)                110       
+_________________________________________________________________
+dense_3 (Dense)              (None, 10)                110       
+_________________________________________________________________
+dense_4 (Dense)              (None, 10)                110       
+_________________________________________________________________
+dense_5 (Dense)              (None, 7)                 77        
+=================================================================
+Total params: 537
+Trainable params: 537
+Non-trainable params: 0
+_________________________________________________________________
+Epoch 1/800
+3068/3068 - 7s - loss: 0.5504 - val_loss: 0.4918
+Epoch 2/800
+3068/3068 - 5s - loss: 0.4901 - val_loss: 0.4915
+Epoch 3/800
+3068/3068 - 6s - loss: 0.4899 - val_loss: 0.4908
+Epoch 4/800
+3068/3068 - 6s - loss: 0.4897 - val_loss: 0.4916
+Epoch 5/800
+3068/3068 - 6s - loss: 0.4897 - val_loss: 0.4915
+Epoch 6/800
+3068/3068 - 6s - loss: 0.4896 - val_loss: 0.4908
+
+Epoch 00006: ReduceLROnPlateau reducing learning rate to 0.00020000000949949026.
+Epoch 7/800
+3068/3068 - 6s - loss: 0.4891 - val_loss: 0.4904
+Epoch 8/800
+3068/3068 - 6s - loss: 0.4890 - val_loss: 0.4904
+Epoch 9/800
+3068/3068 - 5s - loss: 0.4890 - val_loss: 0.4905
+Epoch 10/800
+3068/3068 - 6s - loss: 0.4890 - val_loss: 0.4904
+
+Epoch 00010: ReduceLROnPlateau reducing learning rate to 4.0000001899898055e-05.
+Epoch 11/800
+3068/3068 - 6s - loss: 0.4889 - val_loss: 0.4903
+Epoch 12/800
+3068/3068 - 6s - loss: 0.4889 - val_loss: 0.4903
+Epoch 13/800
+3068/3068 - 6s - loss: 0.4889 - val_loss: 0.4903
+Epoch 14/800
+3068/3068 - 6s - loss: 0.4889 - val_loss: 0.4903
+Epoch 15/800
+3068/3068 - 6s - loss: 0.4889 - val_loss: 0.4903
+
+Epoch 00015: ReduceLROnPlateau reducing learning rate to 8.000000525498762e-06.
+Epoch 16/800
+3068/3068 - 6s - loss: 0.4889 - val_loss: 0.4903
+Epoch 17/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+Epoch 18/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+
+Epoch 00018: ReduceLROnPlateau reducing learning rate to 1.6000001778593287e-06.
+Epoch 19/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+Epoch 20/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+Epoch 21/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+
+Epoch 00021: ReduceLROnPlateau reducing learning rate to 3.200000264769187e-07.
+Epoch 22/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+Epoch 23/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+Epoch 24/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+
+Epoch 00024: ReduceLROnPlateau reducing learning rate to 6.400000529538374e-08.
+Epoch 25/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+Epoch 26/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+Epoch 27/800
+3068/3068 - 5s - loss: 0.4889 - val_loss: 0.4903
+
+Epoch 00027: ReduceLROnPlateau reducing learning rate to 1.2800001059076749e-08.
+Epoch 00027: early stopping
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+[DataReader] read_jet_features_from_dir(): reading 100000000 events from /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+2974378 events read in 79 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+[DataReader] read_jet_features_from_dir(): reading all events from /storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+41408 events read in 1 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+Selected QCD events:  qcdSigMCOrigReco
+%%%%%%%%%%%%%%%%%%%%
+Injecting 18 signal events
+%%%%%%%%%%%%%%%%%%%%
+###################
+
+training QR for quantile [0.15, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99]
+###################
+Model: "model_1"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+input_2 (InputLayer)         [(None, 1)]               0         
+_________________________________________________________________
+Std_Normalize (StdNormalizat (None, 1)                 0         
+_________________________________________________________________
+dense_6 (Dense)              (None, 10)                20        
+_________________________________________________________________
+dense_7 (Dense)              (None, 10)                110       
+_________________________________________________________________
+dense_8 (Dense)              (None, 10)                110       
+_________________________________________________________________
+dense_9 (Dense)              (None, 10)                110       
+_________________________________________________________________
+dense_10 (Dense)             (None, 10)                110       
+_________________________________________________________________
+dense_11 (Dense)             (None, 7)                 77        
+=================================================================
+Total params: 537
+Trainable params: 537
+Non-trainable params: 0
+_________________________________________________________________
+Epoch 1/800
+3068/3068 - 5s - loss: 0.5821 - val_loss: 0.4948
+Epoch 2/800
+3068/3068 - 5s - loss: 0.4930 - val_loss: 0.4948
+Epoch 3/800
+3068/3068 - 5s - loss: 0.4928 - val_loss: 0.4944
+Epoch 4/800
+3068/3068 - 5s - loss: 0.4927 - val_loss: 0.4942
+Epoch 5/800
+3068/3068 - 5s - loss: 0.4926 - val_loss: 0.4942
+Epoch 6/800
+3068/3068 - 5s - loss: 0.4926 - val_loss: 0.4941
+Epoch 7/800
+3068/3068 - 5s - loss: 0.4925 - val_loss: 0.4942
+
+Epoch 00007: ReduceLROnPlateau reducing learning rate to 0.00020000000949949026.
+Epoch 8/800
+3068/3068 - 5s - loss: 0.4922 - val_loss: 0.4939
+Epoch 9/800
+3068/3068 - 5s - loss: 0.4922 - val_loss: 0.4939
+Epoch 10/800
+3068/3068 - 6s - loss: 0.4922 - val_loss: 0.4938
+Epoch 11/800
+3068/3068 - 5s - loss: 0.4922 - val_loss: 0.4938
+
+Epoch 00011: ReduceLROnPlateau reducing learning rate to 4.0000001899898055e-05.
+Epoch 12/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+Epoch 13/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+Epoch 14/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+
+Epoch 00014: ReduceLROnPlateau reducing learning rate to 8.000000525498762e-06.
+Epoch 15/800
+3068/3068 - 5s - loss: 0.4921 - val_loss: 0.4938
+Epoch 16/800
+3068/3068 - 5s - loss: 0.4921 - val_loss: 0.4938
+Epoch 17/800
+3068/3068 - 5s - loss: 0.4921 - val_loss: 0.4938
+
+Epoch 00017: ReduceLROnPlateau reducing learning rate to 1.6000001778593287e-06.
+Epoch 18/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+Epoch 19/800
+3068/3068 - 7s - loss: 0.4921 - val_loss: 0.4938
+Epoch 20/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+
+Epoch 00020: ReduceLROnPlateau reducing learning rate to 3.200000264769187e-07.
+Epoch 21/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+Epoch 22/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+Epoch 23/800
+3068/3068 - 6s - loss: 0.4920 - val_loss: 0.4938
+
+Epoch 00023: ReduceLROnPlateau reducing learning rate to 6.400000529538374e-08.
+Epoch 24/800
+3068/3068 - 6s - loss: 0.4920 - val_loss: 0.4938
+Epoch 25/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+Epoch 26/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+
+Epoch 00026: ReduceLROnPlateau reducing learning rate to 1.2800001059076749e-08.
+Epoch 27/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+Epoch 28/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+Epoch 29/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+
+Epoch 00029: ReduceLROnPlateau reducing learning rate to 2.5600002118153498e-09.
+Epoch 30/800
+3068/3068 - 6s - loss: 0.4920 - val_loss: 0.4938
+Epoch 31/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+Epoch 32/800
+3068/3068 - 6s - loss: 0.4921 - val_loss: 0.4938
+
+Epoch 00032: ReduceLROnPlateau reducing learning rate to 5.1200004236307e-10.
+Epoch 00032: early stopping
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+[DataReader] read_jet_features_from_dir(): reading 100000000 events from /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+2974378 events read in 79 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+[DataReader] read_jet_features_from_dir(): reading all events from /storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+41408 events read in 1 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+Selected QCD events:  qcdSigMCOrigReco
+%%%%%%%%%%%%%%%%%%%%
+Injecting 18 signal events
+%%%%%%%%%%%%%%%%%%%%
+###################
+
+training QR for quantile [0.15, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99]
+###################
+Model: "model_2"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+input_3 (InputLayer)         [(None, 1)]               0         
+_________________________________________________________________
+Std_Normalize (StdNormalizat (None, 1)                 0         
+_________________________________________________________________
+dense_12 (Dense)             (None, 10)                20        
+_________________________________________________________________
+dense_13 (Dense)             (None, 10)                110       
+_________________________________________________________________
+dense_14 (Dense)             (None, 10)                110       
+_________________________________________________________________
+dense_15 (Dense)             (None, 10)                110       
+_________________________________________________________________
+dense_16 (Dense)             (None, 10)                110       
+_________________________________________________________________
+dense_17 (Dense)             (None, 7)                 77        
+=================================================================
+Total params: 537
+Trainable params: 537
+Non-trainable params: 0
+_________________________________________________________________
+Epoch 1/800
+3068/3068 - 6s - loss: 0.5615 - val_loss: 0.4895
+Epoch 2/800
+3068/3068 - 6s - loss: 0.4890 - val_loss: 0.4889
+Epoch 3/800
+3068/3068 - 6s - loss: 0.4887 - val_loss: 0.4887
+Epoch 4/800
+3068/3068 - 5s - loss: 0.4884 - val_loss: 0.4886
+Epoch 5/800
+3068/3068 - 6s - loss: 0.4883 - val_loss: 0.4890
+Epoch 6/800
+3068/3068 - 5s - loss: 0.4882 - val_loss: 0.4884
+Epoch 7/800
+3068/3068 - 5s - loss: 0.4882 - val_loss: 0.4884
+Epoch 8/800
+3068/3068 - 5s - loss: 0.4880 - val_loss: 0.4883
+Epoch 9/800
+3068/3068 - 5s - loss: 0.4880 - val_loss: 0.4887
+Epoch 10/800
+3068/3068 - 5s - loss: 0.4879 - val_loss: 0.4885
+Epoch 11/800
+3068/3068 - 5s - loss: 0.4879 - val_loss: 0.4887
+
+Epoch 00011: ReduceLROnPlateau reducing learning rate to 0.00020000000949949026.
+Epoch 12/800
+3068/3068 - 5s - loss: 0.4875 - val_loss: 0.4880
+Epoch 13/800
+3068/3068 - 5s - loss: 0.4875 - val_loss: 0.4880
+Epoch 14/800
+3068/3068 - 5s - loss: 0.4875 - val_loss: 0.4880
+Epoch 15/800
+3068/3068 - 5s - loss: 0.4875 - val_loss: 0.4880
+
+Epoch 00015: ReduceLROnPlateau reducing learning rate to 4.0000001899898055e-05.
+Epoch 16/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 17/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 18/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+
+Epoch 00018: ReduceLROnPlateau reducing learning rate to 8.000000525498762e-06.
+Epoch 19/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 20/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 21/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+
+Epoch 00021: ReduceLROnPlateau reducing learning rate to 1.6000001778593287e-06.
+Epoch 22/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 23/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 24/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+
+Epoch 00024: ReduceLROnPlateau reducing learning rate to 3.200000264769187e-07.
+Epoch 25/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 26/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 27/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+
+Epoch 00027: ReduceLROnPlateau reducing learning rate to 6.400000529538374e-08.
+Epoch 28/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 29/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 30/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+
+Epoch 00030: ReduceLROnPlateau reducing learning rate to 1.2800001059076749e-08.
+Epoch 31/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 32/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 33/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+
+Epoch 00033: ReduceLROnPlateau reducing learning rate to 2.5600002118153498e-09.
+Epoch 34/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 35/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 36/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+
+Epoch 00036: ReduceLROnPlateau reducing learning rate to 5.1200004236307e-10.
+Epoch 37/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 38/800
+3068/3068 - 6s - loss: 0.4874 - val_loss: 0.4880
+Epoch 39/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+
+Epoch 00039: ReduceLROnPlateau reducing learning rate to 1.0240001069306004e-10.
+Epoch 40/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 41/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+Epoch 42/800
+3068/3068 - 5s - loss: 0.4874 - val_loss: 0.4880
+
+Epoch 00042: ReduceLROnPlateau reducing learning rate to 2.0480002416167767e-11.
+Epoch 00042: early stopping
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+[DataReader] read_jet_features_from_dir(): reading 100000000 events from /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+2974378 events read in 79 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/qcd_sig_orig_RECO
+YES!
+/storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+[DataReader] read_jet_features_from_dir(): reading all events from /storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+41408 events read in 1 files in dir /storage/9/abal/CASE/VAE_results/events/run_28332/WkkToWRadionToWWW_M3000_Mr170_RECO
+Selected QCD events:  qcdSigMCOrigReco
+%%%%%%%%%%%%%%%%%%%%
+Injecting 18 signal events
+%%%%%%%%%%%%%%%%%%%%
+###################
+
+training QR for quantile [0.15, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99]
+###################
+Model: "model_3"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+input_4 (InputLayer)         [(None, 1)]               0         
+_________________________________________________________________
+Std_Normalize (StdNormalizat (None, 1)                 0         
+_________________________________________________________________
+dense_18 (Dense)             (None, 10)                20        
+_________________________________________________________________
+dense_19 (Dense)             (None, 10)                110       
+_________________________________________________________________
+dense_20 (Dense)             (None, 10)                110       
+_________________________________________________________________
+dense_21 (Dense)             (None, 10)                110       
+_________________________________________________________________
+dense_22 (Dense)             (None, 10)                110       
+_________________________________________________________________
+dense_23 (Dense)             (None, 7)                 77        
+=================================================================
+Total params: 537
+Trainable params: 537
+Non-trainable params: 0
+_________________________________________________________________
+Epoch 1/800
+3068/3068 - 6s - loss: 0.5282 - val_loss: 0.4941
+Epoch 2/800
+3068/3068 - 5s - loss: 0.4898 - val_loss: 0.4924
+Epoch 3/800
+3068/3068 - 6s - loss: 0.4896 - val_loss: 0.4924
+Epoch 4/800
+3068/3068 - 6s - loss: 0.4894 - val_loss: 0.4929
+Epoch 5/800
+3068/3068 - 6s - loss: 0.4894 - val_loss: 0.4923
+
+Epoch 00005: ReduceLROnPlateau reducing learning rate to 0.00020000000949949026.
+Epoch 6/800
+3068/3068 - 6s - loss: 0.4888 - val_loss: 0.4920
+Epoch 7/800
+3068/3068 - 6s - loss: 0.4888 - val_loss: 0.4918
+Epoch 8/800
+3068/3068 - 6s - loss: 0.4888 - val_loss: 0.4919
+Epoch 9/800
+3068/3068 - 6s - loss: 0.4888 - val_loss: 0.4918
+Epoch 10/800
+3068/3068 - 6s - loss: 0.4888 - val_loss: 0.4918
+
+Epoch 00010: ReduceLROnPlateau reducing learning rate to 4.0000001899898055e-05.
+Epoch 11/800
+3068/3068 - 5s - loss: 0.4886 - val_loss: 0.4918
+Epoch 12/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+Epoch 13/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4918
+
+Epoch 00013: ReduceLROnPlateau reducing learning rate to 8.000000525498762e-06.
+Epoch 14/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+Epoch 15/800
+3068/3068 - 5s - loss: 0.4886 - val_loss: 0.4917
+Epoch 16/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+
+Epoch 00016: ReduceLROnPlateau reducing learning rate to 1.6000001778593287e-06.
+Epoch 17/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+Epoch 18/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+Epoch 19/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+
+Epoch 00019: ReduceLROnPlateau reducing learning rate to 3.200000264769187e-07.
+Epoch 20/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+Epoch 21/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+Epoch 22/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+
+Epoch 00022: ReduceLROnPlateau reducing learning rate to 6.400000529538374e-08.
+Epoch 23/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+Epoch 24/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+Epoch 25/800
+3068/3068 - 5s - loss: 0.4886 - val_loss: 0.4917
+
+Epoch 00025: ReduceLROnPlateau reducing learning rate to 1.2800001059076749e-08.
+Epoch 26/800
+3068/3068 - 6s - loss: 0.4886 - val_loss: 0.4917
+Epoch 27/800
+3068/3068 - 5s - loss: 0.4886 - val_loss: 0.4917
+Epoch 28/800
+3068/3068 - 5s - loss: 0.4886 - val_loss: 0.4917
+
+Epoch 00028: ReduceLROnPlateau reducing learning rate to 2.5600002118153498e-09.
+Epoch 29/800
+3068/3068 - 5s - loss: 0.4886 - val_loss: 0.4917
+Epoch 30/800
+3068/3068 - 5s - loss: 0.4886 - val_loss: 0.4917
+Epoch 31/800
+3068/3068 - 5s - loss: 0.4886 - val_loss: 0.4917
+
+Epoch 00031: ReduceLROnPlateau reducing learning rate to 5.1200004236307e-10.
+Epoch 00031: early stopping
+c0 = 18.132901922468914 +/- 1.264257862932095
+c1 = -0.03440864099556966 +/- 0.0036837194378732995
+c2 = 2.9581354292819105e-05 +/- 4.281480496567407e-06
+c3 = -1.2717188579769913e-08 +/- 2.5342116885754845e-09
+c4 = 2.9056867699997797e-12 +/- 8.040685412973794e-13
+c5 = -3.232865525812537e-16 +/- 1.2951232259692819e-16
+c6 = 1.3376765427265406e-20 +/- 8.272565504778211e-21
+c0 = 9.246924717026882 +/- 0.9961078706524612
+c1 = -0.013514035439473021 +/- 0.0029024088378992543
+c2 = 1.0151090918443159e-05 +/- 3.3733949131519885e-06
+c3 = -3.3973742732884462e-09 +/- 1.9967193386019374e-09
+c4 = 4.919454743419366e-13 +/- 6.335309969820019e-13
+c5 = -1.7115214022451636e-18 +/- 1.0204374328114554e-16
+c6 = -3.8003345956905746e-21 +/- 6.518023672872782e-21
+c0 = 22.460346362027785 +/- 1.8826656091787115
+c1 = -0.044342138068222285 +/- 0.005485601424700946
+c2 = 3.9364688703782444e-05 +/- 6.375758576237788e-06
+c3 = -1.7435841502713118e-08 +/- 3.773818137264884e-09
+c4 = 4.108561335482878e-12 +/- 1.1973781018990461e-12
+c5 = -4.709882435933873e-16 +/- 1.928632462170193e-16
+c6 = 2.0128792879920242e-20 +/- 1.2319092635299637e-20
+c0 = 27.111905875130947 +/- 1.8932144261180537
+c1 = -0.05337302063072546 +/- 0.005516335197714044
+c2 = 4.656487665967618e-05 +/- 6.411476366700887e-06
+c3 = -2.003694647581486e-08 +/- 3.794957803730581e-09
+c4 = 4.550262119509717e-12 +/- 1.2040849596837401e-12
+c5 = -4.962320527436968e-16 +/- 1.9394348002238276e-16
+c6 = 1.9690377630402253e-20 +/- 1.2388090213788748e-20
+c0 = 51.37783760898753 +/- 4.024668297092014
+c1 = -0.10577501243145006 +/- 0.011726843061657102
+c2 = 9.318163399446497e-05 +/- 1.3629775246415458e-05
+c3 = -4.036062486098154e-08 +/- 8.067477888417373e-09
+c4 = 9.198506867492342e-12 +/- 2.5596944662578566e-12
+c5 = -1.0114342844539291e-15 +/- 4.1229333874194966e-16
+c6 = 4.0909541830795746e-20 +/- 2.6335138541846877e-20
+c0 = 59.10672805210775 +/- 6.068372910135137
+c1 = -0.11040035863433983 +/- 0.017681698893303753
+c2 = 8.504876686107806e-05 +/- 2.0550968109973763e-05
+c3 = -2.9138880599554956e-08 +/- 1.2164159547700834e-08
+c4 = 4.234264359365306e-12 +/- 3.8595196177860576e-12
+c5 = -5.3875206866493996e-17 +/- 6.216591028655867e-16
+c6 = -2.6587065229110976e-20 +/- 3.970840786058584e-20
+c0 = 98.9586127634961 +/- 13.03945250240725
+c1 = -0.13185198204869675 +/- 0.03799359092023867
+c2 = 3.7658444674254135e-05 +/- 4.4158863172642025e-05
+c3 = 3.005111562930767e-08 +/- 2.6137672830050893e-08
+c4 = -2.059643834004549e-11 +/- 8.293105944247375e-12
+c5 = 4.512598030967075e-15 +/- 1.3357812671902348e-15
+c6 = -3.354144089007619e-19 +/- 8.532269877310179e-20
+YES!
+/work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01.h5
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01_fold_0.h5
+c0 = 12.94879162038771 +/- 1.0005793122669406
+c1 = -0.02416010865631022 +/- 0.002915428831322319
+c2 = 2.1756033576443654e-05 +/- 3.3885190063047256e-06
+c3 = -9.801531605834502e-09 +/- 2.005667422101051e-09
+c4 = 2.3596227441859857e-12 +/- 6.36369269753287e-13
+c5 = -2.773653894840683e-16 +/- 1.0250082164405902e-16
+c6 = 1.2313018298000539e-20 +/- 6.547215229189785e-21
+c0 = 5.392462645191226 +/- 0.14646779660246204
+c1 = -0.006709204526256636 +/- 0.0004267692857853029
+c2 = 5.991170556795038e-06 +/- 4.960218384176463e-07
+c3 = -2.5101581039804024e-09 +/- 2.9359592258957785e-10
+c4 = 5.524291922044492e-13 +/- 9.31538018541597e-14
+c5 = -4.75580780537062e-17 +/- 1.5004415905005766e-17
+c6 = 5.8800017438905775e-22 +/- 9.584044296258833e-22
+c0 = 8.44458748106661 +/- 0.6394607694143478
+c1 = -0.016030507670956817 +/- 0.001863223049085117
+c2 = 1.7318916839272087e-05 +/- 2.165570622280002e-06
+c3 = -9.131534908721256e-09 +/- 1.2818031984941407e-09
+c4 = 2.5714946749246275e-12 +/- 4.066976043994284e-13
+c5 = -3.5075386610476363e-16 +/- 6.550730351394107e-17
+c6 = 1.8232837350265994e-20 +/- 4.18426264670067e-21
+c0 = 14.765232492226566 +/- 0.7859813598473597
+c1 = -0.02922453021485006 +/- 0.0022901460346810257
+c2 = 2.890246317386809e-05 +/- 2.66177091221579e-06
+c3 = -1.4192083385828072e-08 +/- 1.5755046300653027e-09
+c4 = 3.771568364274842e-12 +/- 4.998848558147461e-13
+c5 = -4.952975551367925e-16 +/- 8.051710256641162e-17
+c6 = 2.517510608100689e-20 +/- 5.143010641290418e-21
+c0 = 27.193319502817126 +/- 0.43052952658788474
+c1 = -0.05500757796423696 +/- 0.0012544516663112108
+c2 = 5.12558368923885e-05 +/- 1.458013298355626e-06
+c3 = -2.3075139799775184e-08 +/- 8.629994883608062e-10
+c4 = 5.4970281129571645e-12 +/- 2.738172851222761e-13
+c5 = -6.300342173461325e-16 +/- 4.4104106821282164e-17
+c6 = 2.6772864072081354e-20 +/- 2.8171392009008058e-21
+c0 = 24.895398610591357 +/- 1.5755203159179065
+c1 = -0.0400887829299813 +/- 0.004590659130919683
+c2 = 2.8240636418275885e-05 +/- 5.335592967914427e-06
+c3 = -6.214098419585203e-09 +/- 3.1581435919090353e-09
+c4 = -5.621808926965626e-13 +/- 1.0020337169484784e-12
+c5 = 4.2312699268060826e-16 +/- 1.6139893123383204e-16
+c6 = -4.309826138380733e-20 +/- 1.0309321538158058e-20
+c0 = -8.25696908787144 +/- 3.513095794116407
+c1 = 0.10566137380083872 +/- 0.010236251617373791
+c2 = -0.0001733286745556214 +/- 1.1897301894350313e-05
+c3 = 1.2592793257678002e-07 +/- 7.0420245895986545e-09
+c4 = -4.3954237639105556e-11 +/- 2.2343328447053084e-12
+c5 = 7.377230869370774e-15 +/- 3.5988692365528954e-16
+c6 = -4.7289587459206415e-19 +/- 2.2987692859942402e-20
+YES!
+/work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01.h5
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01_fold_1.h5
+c0 = 20.24713637299225 +/- 0.9465444865677315
+c1 = -0.0388638473781855 +/- 0.0027579862585241015
+c2 = 3.3227383072425315e-05 +/- 3.2055293414382947e-06
+c3 = -1.4166602332099286e-08 +/- 1.8973565235114797e-09
+c4 = 3.187284828377968e-12 +/- 6.020040742005949e-13
+c5 = -3.4557902211212736e-16 +/- 9.696562243829945e-17
+c6 = 1.362030005329712e-20 +/- 6.193658810079732e-21
+c0 = 10.712054518357313 +/- 0.9202334248728106
+c1 = -0.01683010036218923 +/- 0.0026813226502024018
+c2 = 1.3120224022686804e-05 +/- 3.116425408943779e-06
+c3 = -4.746033835779185e-09 +/- 1.8446156840602752e-09
+c4 = 8.206248808434282e-13 +/- 5.85270067017719e-13
+c5 = -4.23938769595456e-17 +/- 9.427022686847173e-17
+c6 = -1.8297704633149053e-21 +/- 6.021488588853308e-21
+c0 = 17.169603421296284 +/- 2.270316265486356
+c1 = -0.032306020367208976 +/- 0.006615113861043206
+c2 = 2.841962081058541e-05 +/- 7.688557539821867e-06
+c3 = -1.2365554904503117e-08 +/- 4.550864904453211e-09
+c4 = 2.8515746225659887e-12 +/- 1.443923905430793e-12
+c5 = -3.131636480352668e-16 +/- 2.325747349285476e-16
+c6 = 1.225890463816957e-20 +/- 1.485565793582789e-20
+c0 = 26.87034910541172 +/- 1.9970146265401194
+c1 = -0.05331940321544978 +/- 0.0058187844429447395
+c2 = 4.7119261674658085e-05 +/- 6.763007425576225e-06
+c3 = -2.0676096072763307e-08 +/- 4.003031194702676e-09
+c4 = 4.835104591870693e-12 +/- 1.2701042473671738e-12
+c5 = -5.513725789025383e-16 +/- 2.0457738284731102e-16
+c6 = 2.3423302493508475e-20 +/- 1.306733342117956e-20
+c0 = 41.44073670435201 +/- 4.152823940923582
+c1 = -0.07970635652241394 +/- 0.012100237328798585
+c2 = 6.59659125587629e-05 +/- 1.4063745909629828e-05
+c3 = -2.5925930558965172e-08 +/- 8.324340881601688e-09
+c4 = 5.098605892673438e-12 +/- 2.641193328950168e-12
+c5 = -4.184140975565585e-16 +/- 4.2542067879382644e-16
+c6 = 6.651294470298592e-21 +/- 2.71736706774248e-20
+c0 = 56.14894020961296 +/- 6.534887151934122
+c1 = -0.10830178944637192 +/- 0.01904096111274205
+c2 = 8.811276928607339e-05 +/- 2.2130760788977633e-05
+c3 = -3.3218729128833074e-08 +/- 1.3099222264402191e-08
+c4 = 5.99742621148817e-12 +/- 4.15619769430251e-12
+c5 = -3.813668000671884e-16 +/- 6.6944516805573135e-16
+c6 = -4.586594504777675e-21 +/- 4.27607419221022e-20
+c0 = 76.75932006206554 +/- 14.909918677799022
+c1 = -0.08593412272882396 +/- 0.04344357804663997
+c2 = 1.9272541997324749e-07 +/- 5.049326926591774e-05
+c3 = 4.551711534675434e-08 +/- 2.988709083283611e-08
+c4 = -2.4010318375068753e-11 +/- 9.482797625604365e-12
+c5 = 4.892763489793686e-15 +/- 1.5274197060771994e-15
+c6 = -3.520896188221774e-19 +/- 9.756465188851671e-20
+YES!
+/work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01.h5
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01_fold_2.h5
+c0 = 10.96189453902835 +/- 1.2345824041384212
+c1 = -0.017910688989753294 +/- 0.0035972556280420864
+c2 = 1.4373362886960001e-05 +/- 4.180990104318809e-06
+c3 = -5.53512673296599e-09 +/- 2.4747341812770955e-09
+c4 = 1.0750858780385036e-12 +/- 7.851982572636897e-13
+c5 = -8.487749151995523e-17 +/- 1.264730611187608e-16
+c6 = 1.0159422069909354e-21 +/- 8.078447699109458e-21
+c0 = 8.87550847537113 +/- 0.9952742133119622
+c1 = -0.012507755216025169 +/- 0.0028999690009980806
+c2 = 9.09379705842304e-06 +/- 3.370548222736576e-06
+c3 = -2.8509613887078595e-09 +/- 1.995029482824646e-09
+c4 = 3.4661342671193255e-13 +/- 6.329938115356723e-13
+c5 = 1.716771164826401e-17 +/- 1.0195712347650484e-16
+c6 = -4.753352239454186e-21 +/- 6.512487237982691e-21
+c0 = 19.54452619374247 +/- 2.2648529443737373
+c1 = -0.03889659594715013 +/- 0.006599194809793901
+c2 = 3.567768421586202e-05 +/- 7.670054531314558e-06
+c3 = -1.6413544428185254e-08 +/- 4.539912394582888e-09
+c4 = 4.0547055682830984e-12 +/- 1.4404486059363301e-12
+c5 = -4.93544615617271e-16 +/- 2.3201493152638378e-16
+c6 = 2.2919417996510142e-20 +/- 1.4819898440702064e-20
+c0 = 20.207199231594448 +/- 2.2104101980440434
+c1 = -0.03796282596766466 +/- 0.006440562640063273
+c2 = 3.296150647581029e-05 +/- 7.485680614391282e-06
+c3 = -1.400147065997058e-08 +/- 4.430780915990615e-09
+c4 = 3.143412324436382e-12 +/- 1.4058226101981289e-12
+c5 = -3.345590002742947e-16 +/- 2.2643763900157304e-16
+c6 = 1.2616452281575593e-20 +/- 1.4463646949198862e-20
+c0 = 46.8655078999396 +/- 3.9373034370064537
+c1 = -0.0931841691993445 +/- 0.01147227888731563
+c2 = 7.958882038238159e-05 +/- 1.3333896721354946e-05
+c3 = -3.309748618546498e-08 +/- 7.892344104270688e-09
+c4 = 7.173700448092727e-12 +/- 2.5041263601974564e-12
+c5 = -7.316589711655403e-16 +/- 4.0334284257359367e-16
+c6 = 2.5835553146508417e-20 +/- 2.5763425482426294e-20
+c0 = 48.968445611155175 +/- 5.794434411039402
+c1 = -0.08315335354238124 +/- 0.016883463558454742
+c2 = 5.670758084564773e-05 +/- 1.9623152238082456e-05
+c3 = -1.4509180596488507e-08 +/- 1.1614958476133738e-08
+c4 = 2.860187098910043e-13 +/- 3.6852585541126115e-12
+c5 = 4.730780964355819e-16 +/- 5.935895338903586e-16
+c6 = -5.3959065456524997e-20 +/- 3.7915407870871467e-20
+c0 = 110.7736891844232 +/- 14.23338443835967
+c1 = -0.17593944824538968 +/- 0.041472406923838315
+c2 = 9.648317694471858e-05 +/- 4.820219677765102e-05
+c3 = -7.295459780906867e-09 +/- 2.853092869468421e-08
+c4 = -8.51071515651882e-12 +/- 9.052452149668166e-12
+c5 = 2.604131056847989e-15 +/- 1.4580902495529915e-15
+c6 = -2.194139467514973e-19 +/- 9.313516233936018e-20
+YES!
+/work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01.h5
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01_fold_3.h5
+YES!
+/work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01.h5
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/data_WkkToWRadionToWWW_M3000_Mr170Reco_0.01.h5
+YES!
+/work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/injected_WkkToWRadionToWWW_M3000_Mr170Reco_0.01.h5
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/injected_WkkToWRadionToWWW_M3000_Mr170Reco_0.01.h5
+YES!
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/WkkToWRadionToWWW_M3000_Mr170Reco.h5
+YES!
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/WkkToWRadionToWWW_M3000_Mr170Reco.h5
+YES!
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/WkkToWRadionToWWW_M3000_Mr170Reco.h5
+YES!
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/WkkToWRadionToWWW_M3000_Mr170Reco.h5
+YES!
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/WkkToWRadionToWWW_M3000_Mr170Reco.h5
+YES!
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/WkkToWRadionToWWW_M3000_Mr170Reco.h5
+YES!
+written data sample to /work/abal/CASE/QR_results/events/run_28332/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/WkkToWRadionToWWW_M3000_Mr170Reco.h5
