@@ -26,7 +26,7 @@ import case_paths.phase_space.cut_constants as cuts
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import PolynomialFeatures
-
+import argparse
 
 def get_generated_events(filename):
 
@@ -75,13 +75,18 @@ def fitted_selection(sample, strategy_id, polynomial):
 #           set runtime params
 #****************************************#
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal c.s to inject (default = 0.). Value = injection* 1000 fb-1")
+args = parser.parse_args()
+
 #sample = sys.argv[1] #'grav_3p5_narrow'
 #mass = float(sys.argv[2])
 #inj = float(sys.argv[3])
 sample = 'WkkToWRadionToWWW_M3000_Mr170Reco'
 mass = 3000.
-inj=0.01
-
+inj=args.injection
+print(inj)
 signal_contamin = { ('na', 0): [[0]]*4,
                     ('na', 100): [[1061], [1100], [1123], [1140]], # narrow signal. number of signal contamination; len(sig_in_training_nums) == len(signals)
                     ('br', 0): [[0]]*4,
