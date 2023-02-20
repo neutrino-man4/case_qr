@@ -11,7 +11,7 @@ import copy
 import sys
 import json
 import pandas as pd
-
+import pdb
 import case_paths.jet_sample as js
 import case_paths.util.sample_factory as sf
 import case_paths.util.experiment as ex
@@ -23,11 +23,10 @@ import case_qr.selection.qr_workflow as qrwf
 import analysis.analysis_discriminator as andi
 import case_qr.util.data_processing as dapr
 import case_paths.phase_space.cut_constants as cuts
-
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import PolynomialFeatures
-
+import argparse
 
 def get_generated_events(filename):
 
@@ -76,10 +75,18 @@ def fitted_selection(sample, strategy_id, polynomial):
 #           set runtime params
 #****************************************#
 
-sample = sys.argv[1] #'grav_3p5_narrow'
-mass = float(sys.argv[2])
-inj = float(sys.argv[3])
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal c.s to inject (default = 0.). Value = injection* 1000 fb-1")
+args = parser.parse_args()
+
+#sample = sys.argv[1] #'grav_3p5_narrow'
+#mass = float(sys.argv[2])
+#inj = float(sys.argv[3])
+sample = 'WkkToWRadionToWWW_M3000_Mr170Reco'
+mass = 3000.
+inj=args.injection
+print(inj)
 signal_contamin = { ('na', 0): [[0]]*4,
                     ('na', 100): [[1061], [1100], [1123], [1140]], # narrow signal. number of signal contamination; len(sig_in_training_nums) == len(signals)
                     ('br', 0): [[0]]*4,
@@ -96,8 +103,9 @@ signal_contamin = { ('na', 0): [[0]]*4,
 
 # signals
 resonance = 'na'
-signals = [sample]#,'WkkToWRadionToWWW_M3000_Mr170Reco']
+signals = [sample]
 masses = [mass]
+
 xsecs = [0.]
 sig_in_training_nums_arr = signal_contamin[(resonance, xsecs[0])] # TODO: adapt to multiple xsecs
 
@@ -109,8 +117,8 @@ regions = ["A","B","C","D","E"]
 
 # to run
 Parameters = recordtype('Parameters','run_n, qcd_sample_id, sig_sample_id, strategy_id, epochs, kfold, poly_order, read_n')
-params = Parameters(run_n=50000,
-                    qcd_sample_id='qcd',
+params = Parameters(run_n=28332,
+                    qcd_sample_id='qcdSigMCOrigReco',
                     sig_sample_id=None, # set sig id later in loop
                     strategy_id='rk5_05',
                     epochs=800,
@@ -136,13 +144,13 @@ paths = sf.SamplePathDirFactory(sdfr.path_dict).update_base_path({'$run$': 'run_
 print("Lumi calculation: ...")
 
 
-qcd_gen_events = get_generated_events(params.qcd_sample_id)
+#qcd_gen_events = get_generated_events(params.qcd_sample_id)
 #sig_gen_events = get_generated_events(options.sigFile)
-qcd_xsec = 8.73e6 # [fb]                                 
-lumi = qcd_gen_events/qcd_xsec
+#qcd_xsec = 8.73e6 # [fb]                                 
+#lumi = qcd_gen_events/qcd_xsec
 #lumi=64.1
 #lumi=56.4
-lumi=64
+lumi=26.8
 print("Lumi: ", lumi)
 print("Lumi calculation done")
 
@@ -154,7 +162,6 @@ cut_results = {}
 polynomials = {}
 spolynomials = {}
 discriminators = {}
-
 all_coeffs = {}
 
 nosiginj_chunks = []
@@ -208,7 +215,7 @@ for k in range(params.kfold):
 
 
             print("Selected QCD events: ", params.qcd_sample_id)
-            signal_events_inclusive = float(get_generated_events(params.sig_sample_id))
+            signal_events_inclusive = 150000#float(get_generated_events(params.sig_sample_id))
             signal_events_selected = float(len(sig_sample_ini))
             exp_incl_events = float(inj*1000)*float(lumi)
             exp_sel_events = exp_incl_events * signal_events_selected/signal_events_inclusive
@@ -277,10 +284,10 @@ for k in range(0,params.kfold):
 
                 y_model.append(qrcuts[i][j])
                 w_model.append((1./500)*np.exp(-(bin_centers[j]-1450)/500.))
-                w_model.append(1.)
+                #w_model.append(1.)
 
         pars = model.guess(y_model, x=x_model)
-
+        #pdb.set_trace()
         out = model.fit(y_model, pars, weights=w_model, x=x_model)
 
         pars = []
@@ -297,11 +304,13 @@ for k in range(0,params.kfold):
         df = pd.DataFrame.from_dict(data)
 
         if inj == 0:
-            subprocess.call('mkdir -p models_lmfit_csv',shell=True)
-            df.to_csv('models_lmfit_csv/bkg_lmfit_modelresult_fold_{}_quant_q{:02}.csv'.format(str(k),int(inv_quant*100)))
+            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv')
+            subprocess.call('mkdir -p {}'.format(csv_name),shell=True)
+            df.to_csv('{}/bkg_lmfit_modelresult_fold_{}_quant_q{:02}.csv'.format(csv_name,str(k),int(inv_quant*100)))
         else:
-            subprocess.call('mkdir -p models_lmfit_csv_{}_{}'.format(sample,inj),shell=True)
-            df.to_csv('models_lmfit_csv_{}_{}/bkg_lmfit_modelresult_fold_{}_quant_q{:02}.csv'.format(sample,inj,str(k),int(inv_quant*100)))
+            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj))
+            subprocess.call('mkdir -p {}'.format(csv_name),shell=True)
+            df.to_csv('{}/bkg_lmfit_modelresult_fold_{}_quant_q{:02}.csv'.format(csv_name,str(k),int(inv_quant*100)))
 
         cut_dict['{}_q{:02}'.format(str(k),int(inv_quant*100))] = y_mean
 
@@ -375,8 +384,10 @@ for q,quantile in enumerate(quantiles):
     data = {'par':pars,'err':parserr}
     df = pd.DataFrame.from_dict(data)
     if inj == 0:
-        df.to_csv('models_lmfit_csv/sig_lmfit_modelresult_quant_q{:02}.csv'.format(int(inv_quant*100)))
+        csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv')            
+        df.to_csv('{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(csv_name,int(inv_quant*100)))
     else:
-        df.to_csv('models_lmfit_csv_{}_{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(sample,inj,int(inv_quant*100)))
+        csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj))
+        df.to_csv('{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(csv_name,int(inv_quant*100)))
     for i,s in enumerate(signal_samples):
        s.dump(result_paths.sample_file_path(params.sig_sample_id))
