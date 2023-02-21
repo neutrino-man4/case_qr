@@ -2,6 +2,7 @@ case_qr : quantile regression for anomalous physics
 =================================================================================
 - Need to install ``lmfit``
 - all the case_* modules should be installed in a certain folder and you need to ``export PYTHONPATH=/path/to/folder``
+- you also need a conda/miniforge environment with more or less tensorflow-gpu, pandas, scikit-learn, matplotlib, h5py #should be already there, loguru
 
 
 For a vector quantile regression (all quantiles regressed simultaneously), the executable is ``main_cms_vkfold_lmfit_scan.py``. The lmfit library is used to smoothen the results after the QR. It also supports signal injection:
