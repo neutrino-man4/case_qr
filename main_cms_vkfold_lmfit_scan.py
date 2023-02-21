@@ -77,7 +77,7 @@ def fitted_selection(sample, strategy_id, polynomial):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal c.s to inject (default = 0.). Value = injection* 1000 fb-1")
+parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal lumi to inject (default = 0.). Value = injection* 1000 fb-1")
 args = parser.parse_args()
 
 #sample = sys.argv[1] #'grav_3p5_narrow'
@@ -233,9 +233,14 @@ for k in range(params.kfold):
             if k == 0:
                 #sig_sample.dump(result_paths.sample_file_path(params.sig_sample_id))
                 signal_samples.append(sig_sample)
+            # Keep a copy for debugging        
+            mixed_train_sample_original=copy.deepcopy(mixed_train_sample)
+            print("Replacing samples")
+            dapr.replace_jets(mixed_train_sample)
+            # Pandas dataframes are mutable so a function call is sufficient
 
+            pdb.set_trace()
             chunks.append(mixed_train_sample.merge(mixed_valid_sample))
-                
             # train QR model
             discriminator = qrwf.train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params)
 

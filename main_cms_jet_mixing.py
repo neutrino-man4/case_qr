@@ -116,13 +116,13 @@ regions = ["A","B","C","D","E"]
 #quantiles = [0.5]
 
 # to run
-Parameters = recordtype('Parameters','run_n, qcd_sample_id, sig_sample_id, strategy_id, epochs, kfold, poly_order, read_n')
+Parameters = recordtype('Parameters','run_n, qcd_sample_id, sig_sample_id, strategy_id, epochs, mixed_sample_id, poly_order, read_n')
 params = Parameters(run_n=28332,
                     qcd_sample_id='qcdSigMCOrigReco',
                     sig_sample_id=None, # set sig id later in loop
                     strategy_id='rk5_05',
                     epochs=800,
-                    mixed_sample_id='qcdSigMCOrigReco_mixedJets'
+                    mixed_sample_id='qcdSigMCOrigReco_mixedJets',
                     #kfold=3,
                     poly_order=6,
                     read_n=int(1e8))
@@ -169,19 +169,11 @@ chunks = []
 signal_samples = []
 injected_signal_samples = []
 
-for k in range(params.kfold):
-
-    # if datasets not yet prepared, prepare them, dump and return (same qcd train and testsample for all signals and all xsecs)
-    qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.signalregion_cuts)
-    nosiginj_chunks.append(qcd_train_sample)
-
-
 
     # if datasets not yet prepared, prepare them, dump and return (same qcd train and testsample for all signals and all xsecs)
 
     #qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.signalregion_Uppercuts)
 
-qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.signalregion_cuts)
 
 # test sample corresponds to the other N-1 folds. It will not be used in the following.
 
@@ -190,6 +182,8 @@ qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params
 #****************************************#
 
 for sig_sample_id,mass in zip(signals,masses):
+    
+    qcd_sample= dapr.make_qcd_train_test_datasets(params, paths,which_fold=-1, nfold=-1, train_split=0.,**cuts.signalregion_cuts)
     
     params.sig_sample_id = sig_sample_id
     sig_sample_ini = js.JetSample.from_input_dir(params.sig_sample_id, paths.sample_dir_path(params.sig_sample_id), **cuts.signalregion_cuts)
@@ -224,16 +218,13 @@ for sig_sample_id,mass in zip(signals,masses):
     print("%%%%%%%%%%%%%%%%%%%%")
 
     if how_much_to_inject == 0:
-        mixed_sample = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.)
+        mixed_sample = dapr.inject_signal(qcd_sample, sig_sample_ini, how_much_to_inject, train_split = 0.)
     else:
-        mixed_sample, injected_signal = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.)
-        injected_signal_samples.append(injected_signal)
+        mixed_sample = dapr.inject_signal(qcd_sample, sig_sample_ini, how_much_to_inject, train_split = 0.)
+        #injected_signal_samples.append(injected_signal)
     
-    if k == 0:
-        #sig_sample.dump(result_paths.sample_file_path(params.sig_sample_id))
-        signal_samples.append(sig_sample)
     # Keep a copy for debugging        
-    mixed_sample_original_data=mixed_sample.data.copy()
+    mixed_sample_original=copy.deepcopy(mixed_sample)
     print("Replacing samples")
     dapr.replace_jets(mixed_sample)
     # Pandas dataframes are mutable so a function call is sufficient
