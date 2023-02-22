@@ -77,46 +77,24 @@ def fitted_selection(sample, strategy_id, polynomial):
 #****************************************#
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal lumi to inject (default = 0.). Value = injection* 1000 fb-1")
-args = parser.parse_args()
+#parser = argparse.ArgumentParser()
+#parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal lumi to inject (default = 0.). Value = injection* 1000 fb-1")
+#args = parser.parse_args()
 
 #sample = sys.argv[1] #'grav_3p5_narrow'
 #mass = float(sys.argv[2])
 #inj = float(sys.argv[3])
 sample = 'WkkToWRadionToWWW_M3000_Mr170Reco'
 mass = 3000.
-injected=np.arange(0.01,0.11,0.01)
+injected=[0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1]
 
 print(injected)
 
 
-signal_contamin = { ('na', 0): [[0]]*4,
-                    ('na', 100): [[1061], [1100], [1123], [1140]], # narrow signal. number of signal contamination; len(sig_in_training_nums) == len(signals)
-                    ('br', 0): [[0]]*4,
-                    ('br', 100): [[1065], [1094], [1113], [1125]], # broad signal. number of signal contamination; len(sig_in_training_nums) == len(signals)
-                }
-
-
-#bin_edges = np.array([1457, 1529, 1604, 1681, 1761, 1844, 1930, 2019, 2111, 2206,
-#                        2305, 2406, 2512, 2620, 2733, 2849, 2969, 3093, 3221, 3353, 3490, 3632, 3778, 3928,
-#                        4084, 4245, 4411, 4583, 4760, 4943, 5132, 5327, 5574, 5737, 5951]).astype('float')
-
-#bin_centers = [(high+low)/2 for low, high in zip(bin_edges[:-1], bin_edges[1:])]
-
-
-# signals
-resonance = 'na'
 signals = samp.all_samples
 masses = [mass]
 
-xsecs = [0.]
-sig_in_training_nums_arr = signal_contamin[(resonance, xsecs[0])] # TODO: adapt to multiple xsecs
 
-# quantiles
-quantiles = [0.15, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99]
-#quantiles = [0.1, 0.3]
-regions = ["A","B","C","D","E"]
 #quantiles = [0.5]
 
 # to run
@@ -128,13 +106,6 @@ params = Parameters(run_n=28332,
                     injected_sample_id='qcdSigMCOrigReco_injectedJets',
                     read_n=int(1e8))
 
-
-
-
-
-#result_dir = '/data/t3home000/bmaier/CASE/QR_results/analysis/vqr_run_%s/sig_WkkToWRadionToWWW_M3000_Mr170Reco/xsec_0/loss_rk5_05/qr_cuts/' % str(params.run_n) + '/maurizio_envelope'
-
-#subprocess.call("mkdir -p %s"%result_dir,shell=True)
 
 #****************************************#
 #           read in qcd data
@@ -207,7 +178,7 @@ for sig_sample_id in signals:
         mixed_sample_original=copy.deepcopy(mixed_sample)
         #pdb.set_trace()
         
-        mixed_sample.dump(paths.sample_file_path(params.injected_sample_id, mkdir=True,overwrite='True',customname=f'qcd_sig_orig_reco_injected_{sig_sample_id}_{inj}'))
+        mixed_sample.dump(paths.sample_file_path(params.injected_sample_id, additional_id=sig_sample_id, mkdir=True,overwrite='True',customname=f'qcd_sig_orig_reco_injected_{sig_sample_id}_{inj}'))
 
 #print("Dictionary:")
 #print(discriminators)
