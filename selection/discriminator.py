@@ -539,6 +539,7 @@ class VQRDiscriminator(VDiscriminator):
 
     def load(self, path):
         self.model = tf.keras.models.load_model(path, custom_objects={'StdNormalization': layers.StdNormalization, 'StdUnnormalization': layers.StdUnnormalization}, compile=False)
+        
         print('loaded model ', self.model)
 
     def predict(self, data):
@@ -585,11 +586,13 @@ class VQRv1Discriminator_KerasAPI(VQRDiscriminator):
        
         return self.history.history['loss'], self.history.history['val_loss']
 
-    def predict(self, data):
+    def predict(self, data,flatten=True):
         if isinstance(data, js.JetSample):
             data = data[self.mjj_key]
         xx = data #self.scale_input(data)
 
-        predicted = self.model.predict(xx).flatten() 
+        predicted = self.model.predict(xx)
+        if flatten: 
         # return self.unscale_output(predicted)
+            return predicted.flatten()
         return predicted
