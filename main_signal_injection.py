@@ -28,6 +28,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import PolynomialFeatures
 import argparse
+import csv
 
 def get_generated_events(filename):
 
@@ -84,9 +85,8 @@ def fitted_selection(sample, strategy_id, polynomial):
 #sample = sys.argv[1] #'grav_3p5_narrow'
 #mass = float(sys.argv[2])
 #inj = float(sys.argv[3])
-sample = 'WkkToWRadionToWWW_M3000_Mr170Reco'
 mass = 3000.
-injected=[0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1]
+injected=[0.1,0.09,0.08,0.07,0.06,0.05,0.04,0.03,0.02,0.01]
 
 print(injected)
 
@@ -99,7 +99,7 @@ masses = [mass]
 
 # to run
 Parameters = recordtype('Parameters','run_n, qcd_sample_id, sig_sample_id, strategy_id, injected_sample_id, read_n')
-params = Parameters(run_n=28332,
+params = Parameters(run_n=50005,
                     qcd_sample_id='qcdSigMCOrigReco',
                     sig_sample_id=None, # set sig id later in loop
                     strategy_id='rk5_05',
@@ -129,35 +129,32 @@ print("Lumi calculation done")
 
 qcd_sample= dapr.make_qcd_train_test_datasets(params, paths,which_fold=-1, nfold=-1, train_split=0.,**cuts.signalregion_cuts)
 
-print('Read in QCD dataset \n ______________')
+qcd_sample.dump(paths.sample_file_path(params.injected_sample_id, mkdir=True,overwrite='True',\
+                                                 customname=f'sig_MCOrig_QR_Reco'))
 
+print('Read in QCD dataset \n ______________')
+#signals=['WkkToWRadionToWWW_M3000_Mr170Reco']
+#injected=[0.1]
 for sig_sample_id in signals:
+    param_dict = {'$sig_name$': params.sig_sample_id, '$loss_strat$': params.strategy_id}
+    experiment = ex.Experiment(run_n=params.run_n, param_dict=param_dict).setup(model_dir_qr=True, analysis_dir_qr=True)
+    result_paths = sf.SamplePathDirFactory(sdfs.path_dict).update_base_path({'$run$': str(params.run_n), **param_dict}) # in selection paths new format with run_x, sig_x, ...
+    
+    csv_file=open(paths.sample_dir_path(params.injected_sample_id,mkdir=True)+f'/log_{sig_sample_id}.csv','w')
+    writer=csv.writer(csv_file)
+    writer.writerow(['qcd_events','signal_events','injected_events','luminosity'])
+    params.sig_sample_id = sig_sample_id
+    sig_sample_ini = js.JetSample.from_input_dir(params.sig_sample_id, paths.sample_dir_path(params.sig_sample_id), **cuts.signalregion_cuts)
+    
+    sig_sample = copy.deepcopy(sig_sample_ini)
+    
+    sig_sample.dump(paths.sample_file_path(params.injected_sample_id, additional_id=sig_sample_id, mkdir=True,overwrite='True',\
+                                                 customname=f'signal_{sig_sample_id}'))
+        
     for inj in injected:
 
         print(inj)
         
-        params.sig_sample_id = sig_sample_id
-        sig_sample_ini = js.JetSample.from_input_dir(params.sig_sample_id, paths.sample_dir_path(params.sig_sample_id), **cuts.signalregion_cuts)
-        
-        # ************************************************************
-        #     for each signal xsec: train and apply QR
-        # ************************************************************
-        
-        
-        param_dict = {'$sig_name$': params.sig_sample_id, '$loss_strat$': params.strategy_id}
-        experiment = ex.Experiment(run_n=params.run_n, param_dict=param_dict).setup(model_dir_qr=True, analysis_dir_qr=True)
-        result_paths = sf.SamplePathDirFactory(sdfs.path_dict).update_base_path({'$run$': str(params.run_n), **param_dict}) # in selection paths new format with run_x, sig_x, ...
-        
-        # ************************************************************
-        #                     train
-        # ************************************************************
-        
-        # create new test samples for new xsec QR (quantile cut results)
-        #qcd_test_sample = copy.deepcopy(qcd_test_sample_ini)
-        
-        sig_sample = copy.deepcopy(sig_sample_ini)
-
-
         print("Selected QCD events: ", params.qcd_sample_id)
         signal_events_inclusive = 150000#float(get_generated_events(params.sig_sample_id))
         signal_events_selected = float(len(sig_sample_ini))
@@ -167,18 +164,29 @@ for sig_sample_id in signals:
         print("%%%%%%%%%%%%%%%%%%%%")
         print("Injecting %i signal events"%how_much_to_inject)
         print("%%%%%%%%%%%%%%%%%%%%")
-
+         
         if how_much_to_inject == 0:
             mixed_sample = dapr.inject_signal(qcd_sample, sig_sample_ini, how_much_to_inject, train_split = 0.)
         else:
-            mixed_sample = dapr.inject_signal(qcd_sample, sig_sample_ini, how_much_to_inject, train_split = 0.)
+            mixed_sample,injected_sample = dapr.inject_signal(qcd_sample, sig_sample_ini, how_much_to_inject, train_split = 0.)
             #injected_signal_samples.append(injected_signal)
         
+        ### LOG FILE ###
+        log = [qcd_sample.data.shape[0],sig_sample.data.shape[0],how_much_to_inject,lumi]
+        print(log)
+        writer.writerow(log)
+        ### LOG FILE END ####
+
+
         # Keep a copy for debugging        
-        mixed_sample_original=copy.deepcopy(mixed_sample)
+        #mixed_sample_original=copy.deepcopy(mixed_sample)
         #pdb.set_trace()
-        
-        mixed_sample.dump(paths.sample_file_path(params.injected_sample_id, additional_id=sig_sample_id, mkdir=True,overwrite='True',customname=f'qcd_sig_orig_reco_injected_{sig_sample_id}_{inj}'))
+
+        mixed_sample.dump(paths.sample_file_path(params.injected_sample_id, additional_id=sig_sample_id, mkdir=True,overwrite='True',\
+                                                 customname=f'data_{sig_sample_id}_{inj}'))
+        injected_sample.dump(paths.sample_file_path(params.injected_sample_id, additional_id=sig_sample_id, mkdir=True,overwrite='True',\
+                                                 customname=f'injected_{sig_sample_id}_{inj}'))
+    csv_file.close()    
 
 #print("Dictionary:")
 #print(discriminators)
