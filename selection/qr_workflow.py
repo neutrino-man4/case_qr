@@ -58,7 +58,8 @@ def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, plot_
     print("###################")
     print(f'\ntraining QR for quantile {quantiles}')
     print("###################")
-    vqr_discriminator = disc.VQRv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=160, epochs=params.epochs,  n_layers=5, n_nodes=10)
+    vqr_discriminator = disc.VQRv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=params.batch_sz, epochs=params.epochs,  n_layers=params.n_layers, n_nodes=10)
+    
     losses_train, losses_valid = vqr_discriminator.fit(mixed_train_sample, mixed_valid_sample)
     
     if plot_loss:
