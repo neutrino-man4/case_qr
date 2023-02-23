@@ -17,9 +17,9 @@ def create_libraries(binning):
                 'j2Pt', 'j2Eta', 'j2Phi', 'j2M', 'j1RecoLoss', 'j1KlLoss',
                 'j2RecoLoss', 'j2KlLoss']
     
-    run_n=28332
+    run_n=50005    
     signals=samp.all_samples
-    injected=[0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1]
+    injected=[0.1,0.09,0.08,0.07,0.06,0.05,0.04,0.03,0.02,0.01]
     
     #sig_sample_id=signal
         
@@ -30,6 +30,10 @@ def create_libraries(binning):
     
 
     for sig_sample_id in signals:
+        print('###############################')
+        print(sig_sample_id)
+        print('###############################')
+        
         for inj in injected:    
         
             libs_mjj = {}
@@ -57,7 +61,7 @@ def create_libraries(binning):
             
             
             
-            filename=paths.sample_file_path(injected_id,additional_id=sig_sample_id,overwrite=True,customname=f'qcd_sig_orig_reco_injected_{sig_sample_id}_{inj}')
+            filename=paths.sample_file_path(injected_id,additional_id=sig_sample_id,overwrite=True,customname=f'data_{sig_sample_id}_{inj}')
             print(f'Performing mixing on {filename}')
             with h5py.File(filename, "r") as f:
                 features = f['eventFeatures'][()]
@@ -165,7 +169,7 @@ def create_libraries(binning):
                     final_arr = np.concatenate((final_arr,final_features_in_bin),axis=0)
 
             #print(final_arr.shape)
-            out_filename=paths.sample_file_path(mixed_id,additional_id=sig_sample_id,mkdir=True,overwrite=True,customname=f'qcd_sig_orig_reco_injected_{sig_sample_id}_{inj}')
+            out_filename=paths.sample_file_path(mixed_id,additional_id=sig_sample_id,mkdir=True,overwrite=True,customname=f'data_MIXED_{sig_sample_id}_{inj}')
             
             print("Complete. Now creating dataset")
             print(f"Output file: {out_filename}")

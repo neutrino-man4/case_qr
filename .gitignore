@@ -2,3 +2,5 @@
 logs/
 
 *.png
+*.pyc
+*.pyos
