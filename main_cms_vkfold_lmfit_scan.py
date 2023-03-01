@@ -78,8 +78,10 @@ def fitted_selection(sample, strategy_id, polynomial):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal c.s to inject (default = 0.). Value = injection* 1000 fb-1")
+parser.add_argument("-r","--run",type=int,help="Provide the new run number to identify your new results")
 args = parser.parse_args()
 
+run=args.run
 #sample = sys.argv[1] #'grav_3p5_narrow'
 #mass = float(sys.argv[2])
 #inj = float(sys.argv[3])
@@ -118,14 +120,14 @@ regions = ["A","B","C","D","E"]
 
 # to run
 Parameters = recordtype('Parameters','run_n, qcd_sample_id, sig_sample_id, strategy_id, epochs, kfold, poly_order, read_n')
-params = Parameters(run_n=50000,
+params = Parameters(run_n=run,
                     qcd_sample_id='qcdSigMCOrigReco',
                     sig_sample_id=None, # set sig id later in loop
                     strategy_id='rk5_05',
                     epochs=800,
                     kfold=4,
                     #kfold=3,
-                    poly_order=6,
+                    poly_order=3,
                     read_n=int(1e8))
 
 
@@ -247,8 +249,8 @@ for k in range(params.kfold):
 #print("Dictionary:")
 #print(discriminators)
 
-bin_low = 1100
-bin_high = 8010
+bin_low = 1455 
+bin_high = 5500
 
 bins = np.linspace(bin_low,bin_high,bin_high-bin_low)
 
