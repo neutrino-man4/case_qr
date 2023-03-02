@@ -201,11 +201,11 @@ def create_libraries(binning):
                 # Expand dimensions
                 evts_mjj[b] = np.expand_dims(evts_mjj[b],axis=1)
                 evts_deta[b] = np.expand_dims(evts_deta[b],axis=1)
-                evts_j1pt[b] = np.expand_dims(np.exp(evts_j1pt[b]),axis=1)
+                evts_j1pt[b] = np.expand_dims((evts_j1pt[b]),axis=1)
                 evts_j1eta[b] = np.expand_dims(evts_j1eta[b],axis=1)
                 evts_j1reco[b] = np.expand_dims(evts_j1reco[b],axis=1)
                 evts_j1kl[b] = np.expand_dims(evts_j1kl[b],axis=1)
-                evts_j2pt[b] = np.expand_dims(np.exp(evts_j2pt[b]),axis=1)
+                evts_j2pt[b] = np.expand_dims((evts_j2pt[b]),axis=1)
                 evts_j2eta[b] = np.expand_dims(evts_j2eta[b],axis=1)
                 evts_j2reco[b] = np.expand_dims(evts_j2reco[b],axis=1)
                 evts_j2kl[b] = np.expand_dims(evts_j2kl[b],axis=1)
