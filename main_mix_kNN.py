@@ -16,8 +16,11 @@ def normalize(df,max=None):
         return df/max
     return (df-df.min())/(df.max()-df.min())
 
-def mask(df,q=0.9):
+def upper_mask(df,q=0.9):
     return df>np.quantile(df,q=q)
+
+def lower_mask(df,q=0.9):
+    return df<=np.quantile(df,q=q)
 
 def create_libraries(binning):
     reg = 250
@@ -25,8 +28,6 @@ def create_libraries(binning):
     branches = ['mJJ', 'DeltaEtaJJ', 'j1Pt', 'j1Eta', 'j1Phi', 'j1M',
                 'j2Pt', 'j2Eta', 'j2Phi', 'j2M', 'j1RecoLoss', 'j1KlLoss',
                 'j2RecoLoss', 'j2KlLoss']
-    
-    k_NN=5
     
     run_n=50005    
     signals=samp.all_samples
@@ -103,10 +104,12 @@ def create_libraries(binning):
                             pass
                 features[:,idxs['j1Pt']]=normalize(features[:,idxs['j1Pt']])
                 features[:,idxs['j1Eta']]=normalize(features[:,idxs['j1Eta']],max=2.5)
+                features[:,idxs['j1Eta']]=abs(features[:,idxs['j1Eta']]) # match in abs(eta)
                 features[:,idxs['j1Phi']]=normalize(features[:,idxs['j1Phi']],max=3.15)
                 
                 features[:,idxs['j2Pt']]=normalize(features[:,idxs['j2Pt']])
                 features[:,idxs['j2Eta']]=normalize(features[:,idxs['j2Eta']],max=2.5)
+                features[:,idxs['j2Eta']]=abs(features[:,idxs['j2Eta']])
                 features[:,idxs['j2Phi']]=normalize(features[:,idxs['j2Phi']],max=3.15)
                 
                         
@@ -183,20 +186,26 @@ def create_libraries(binning):
 
             for b,lower in enumerate(binning):    
                 print('Bin',b,'contains',len(evts_mjj[b]))
-
+                
             
             for b,lower in enumerate(binning):
                 #if b > 1:
-                #    break
+                # Construct event discriminator
+                j1Total=evts_j1reco[b]+0.5*evts_j1kl[b]
+                j2Total=evts_j2reco[b]+0.5*evts_j2kl[b]
+                evt_disc=np.minimum(j1Total,j2Total)
                 
                 # Now set up the KD Tree
                 data_for_kdtree = np.stack((libs_j2pt[b],libs_j2eta[b]),axis=-1)
-                data_in_bin = np.stack((evts_j2pt[b],evts_j2eta[b]),axis=-1)
+                data_in_bin = np.stack((evts_j2pt[b][lower_mask(evt_disc,q=0.99)],evts_j2eta[b][lower_mask(evt_disc,q=0.99)]),axis=-1)
+                data_in_bin_q90 = np.stack((evts_j2pt[b][upper_mask(evt_disc,q=0.99)],evts_j2eta[b][upper_mask(evt_disc,q=0.99)]),axis=-1)
                 kdtrees[b] = KDTree(data_for_kdtree)        
                 
                 data_for_kdtree1 = np.stack((libs_j1pt[b],libs_j1eta[b]),axis=-1)
-                data_in_bin1 = np.stack((evts_j1pt[b],evts_j1eta[b]),axis=-1)
+                data_in_bin1 = np.stack((evts_j1pt[b][lower_mask(evt_disc)],evts_j1eta[b][lower_mask(evt_disc,q=0.99)]),axis=-1)
+                data_in_bin1_q90 = np.stack((evts_j1pt[b][upper_mask(evt_disc,q=0.99)],evts_j1eta[b][upper_mask(evt_disc,q=0.99)]),axis=-1)
                 kdtrees1[b] = KDTree(data_for_kdtree1)        
+
                             
                 # Expand dimensions
                 evts_mjj[b] = np.expand_dims(evts_mjj[b],axis=1)
@@ -212,70 +221,51 @@ def create_libraries(binning):
                 
                 print(f"Bin {b+1}/{len(binning)}")
                 
-                j1Total=evts_j1reco[b]+0.5*evts_j1kl[b]
-                j2Total=evts_j2reco[b]+0.5*evts_j2kl[b]
-                evt_disc=np.minimum(j1Total,j2Total)
-                k_NN=1
-
+                k_NN=100
                 # Perform at least once
-                print(f"Starting with k={k_NN}")
-                dist,ind = kdtrees[b].query(data_in_bin, k=k_NN)
+                #print(f"Starting with k={k_NN}")
+                dist,ind = kdtrees[b].query(data_in_bin, k=5)
+                dist_q90,ind_q90 = kdtrees[b].query(data_in_bin_q90, k=k_NN)
                 flat_ind = ind.flatten()
-
-                dist1,ind1 = kdtrees1[b].query(data_in_bin1, k=k_NN)
+                flat_ind_q90 = ind_q90.flatten()
+               # pdb.set_trace()
+                dist1,ind1 = kdtrees1[b].query(data_in_bin1, k=5)
+                dist1_q90,ind1_q90 = kdtrees1[b].query(data_in_bin1_q90, k=k_NN)
                 flat_ind1 = ind1.flatten()
+                flat_ind1_q90 = ind1_q90.flatten()
+                replaced_j1reco=np.zeros(evts_j1reco[b].shape[0])
+                replaced_j1kl=np.zeros(evts_j1reco[b].shape[0])
+                replaced_j2reco=np.zeros(evts_j1reco[b].shape[0])
+                replaced_j2kl=np.zeros(evts_j1reco[b].shape[0])
+                #pdb.set_trace()######
+                #=replaced_j1kl=replaced_j2reco=replaced_j2kl=
+                # When we construct the replaced jet array, ordering of the indices must be preserved
+                replaced_j2reco[np.where(lower_mask(evt_disc))[0]]=libs_j2reco[b][ind][:,0]
+                replaced_j2reco[np.where(upper_mask(evt_disc))[0]]=libs_j2reco[b][ind_q90].mean(axis=1)
+                replaced_j2kl[np.where(lower_mask(evt_disc))[0]]=libs_j2kl[b][ind][:,0]
+                replaced_j2kl[np.where(upper_mask(evt_disc))[0]]=libs_j2kl[b][ind_q90].mean(axis=1)
+                
+                replaced_j1reco[np.where(lower_mask(evt_disc))[0]]=libs_j1reco[b][ind1][:,0]
+                replaced_j1reco[np.where(upper_mask(evt_disc))[0]]=libs_j1reco[b][ind1_q90].mean(axis=1)
+                replaced_j1kl[np.where(lower_mask(evt_disc))[0]]=libs_j1kl[b][ind1][:,0]
+                replaced_j1kl[np.where(upper_mask(evt_disc))[0]]=libs_j1kl[b][ind1_q90].mean(axis=1)
 
-                replaced_j2reco = np.expand_dims(libs_j2reco[b][ind].mean(axis=1),axis=1)
-                replaced_j2kl = np.expand_dims(libs_j2kl[b][ind].mean(axis=1),axis=1)
-                
-                replaced_j1reco = np.expand_dims(libs_j1reco[b][ind1].mean(axis=1),axis=1)
-                replaced_j1kl = np.expand_dims(libs_j1kl[b][ind1].mean(axis=1),axis=1)
-                
+                # Now calculate the event discriminator Min.(L1,L2) after replacement and before reshaping (for consistency)
                 replaced_j1Total=replaced_j1reco+0.5*replaced_j1kl
                 replaced_j2Total=replaced_j2reco+0.5*replaced_j2kl
                 replaced_evt_disc=np.minimum(replaced_j1Total,replaced_j2Total)
-                    
-                print(f"k={k_NN} | Before and after: {evt_disc.mean():4f} and {replaced_evt_disc.mean():4f}")
-
-                best=[replaced_j1reco,replaced_j1kl,replaced_j1Total,replaced_j2reco,replaced_j2kl,replaced_j2Total,k_NN]
-                    
-                while (True):
-                    if (k_NN==1 and evt_disc.mean()>replaced_evt_disc.mean()): break
-                    
-                    k_NN=k_NN*2
-                    if (k_NN>128): break
-                    
-                    print(f"Increasing nearest neighbours to {k_NN}")
-                    
-                    dist,ind = kdtrees[b].query(data_in_bin, k=k_NN)
-                    flat_ind = ind.flatten()
-
-                    dist1,ind1 = kdtrees1[b].query(data_in_bin1, k=k_NN)
-                    flat_ind1 = ind1.flatten()
-
-                    replaced_j2reco = np.expand_dims(libs_j2reco[b][ind].mean(axis=1),axis=1)
-                    replaced_j2kl = np.expand_dims(libs_j2kl[b][ind].mean(axis=1),axis=1)
-                    
-                    replaced_j1reco = np.expand_dims(libs_j1reco[b][ind1].mean(axis=1),axis=1)
-                    replaced_j1kl = np.expand_dims(libs_j1kl[b][ind1].mean(axis=1),axis=1)
-                    
-                    replaced_j1Total=replaced_j1reco+0.5*replaced_j1kl
-                    replaced_j2Total=replaced_j2reco+0.5*replaced_j2kl
-                    
-                    replaced_evt_disc=np.minimum(replaced_j1Total,replaced_j2Total)
-                    print(f"k={k_NN} | Before and after: {evt_disc.mean():4f} and {replaced_evt_disc.mean():4f}")
-
-                    
-                    if (min(replaced_j1Total.mean(),replaced_j2Total.mean())<min(best[2].mean(),best[5].mean())):
-                        print(f"Change: f{min(replaced_j1Total.mean(),replaced_j2Total.mean())} and best: {min(best[2].mean(),best[5].mean())}")
-                        best=[replaced_j1reco,replaced_j1kl,replaced_j1Total,replaced_j2reco,replaced_j2kl,replaced_j2Total,k_NN]
-                    pdb.set_trace()
-                    if (min(replaced_j1Total.mean(),replaced_j2Total.mean())<min(j1Total.mean(),j2Total.mean())):
-                        break # Break if loss is lowered
                 
-                print(f"Choosing k={best[6]} as the best case")
-                replaced_j1reco=best[0];replaced_j1kl=best[1];replaced_j1Total=best[2]
-                replaced_j2reco=best[3];replaced_j2kl=best[4];replaced_j1Total=best[5]
+                replaced_j2reco = np.expand_dims(replaced_j2reco,axis=1)
+                replaced_j2kl = np.expand_dims(replaced_j2kl,axis=1)
+                
+                replaced_j1reco = np.expand_dims(replaced_j1reco,axis=1)
+                replaced_j1kl = np.expand_dims(replaced_j1kl,axis=1)
+                #pdb.set_trace()########
+                
+                
+                    
+                print(f"Q50 | Before and after: {np.quantile(evt_disc,q=0.5):4f} and {np.quantile(replaced_evt_disc,q=0.5):4f}")
+                print(f"Q90 | Before and after: {np.quantile(evt_disc,q=0.9):4f} and {np.quantile(replaced_evt_disc,q=0.9):4f}")
 
                 print("##############################")
                 
@@ -310,8 +300,8 @@ def create_libraries(binning):
                     final_arr = np.concatenate((final_arr,final_features_in_bin),axis=0)
 
             #print(final_arr.shape)
-            #out_filename=paths.sample_file_path(mixed_id,additional_id=sig_sample_id,mkdir=True,overwrite=True,customname=f'data_MIXED_{sig_sample_id}_{inj}_normalized_dynamicNN_v2')
-            out_filename = f'/storage/9/abal/CASE/VAE_results/events/run_{run_n}/qcd_sig_orig_RECO_injected_jets/sig_MCOrig_QR_Reco_MIXED_dynamicNN.h5'
+            #out_filename=paths.sample_file_path(mixed_id,additional_id=sig_sample_id,mkdir=True,overwrite=True,customname=f'data_MIXED_{sig_sample_id}_{inj}_normalized_dynamicNN_v3.1_{k_NN}NN')
+            out_filename = f'/storage/9/abal/CASE/VAE_results/events/run_{run_n}/qcd_sig_orig_RECO_injected_jets/sig_MCOrig_QR_Reco_MIXED_dynamicNNv3.1.h5'
             print("Complete. Now creating dataset")
             print(f"Output file: {out_filename}")
             
