@@ -71,6 +71,9 @@ def combine_loss_reco_kl_min(x, beta=10.):
     ''' (RecoLoss J1 + 10* KL J1) & (RecoLoss J2 + 10* KL J2) '''
     return np.minimum(x['j1RecoLoss'] + beta * x['j1KlLoss'], x['j2RecoLoss'] + beta * x['j2KlLoss']) 
 
+def combine_loss_reco_kl_max(x, beta=10.):
+    ''' (RecoLoss J1 + 10* KL J1) & (RecoLoss J2 + 10* KL J2) '''
+    return np.maximum(x['j1RecoLoss'] + beta * x['j1KlLoss'], x['j2RecoLoss'] + beta * x['j2KlLoss']) 
 
 
 class LossStrategy():
@@ -112,6 +115,7 @@ loss_strategy_dict = OrderedDict({
                      'rk5_10': LossStrategyParam(param=10., loss_fun=combine_loss_reco_kl_min, title_str='(R J1 + 10*KL J1) & (R J2 + 10*KL J2)', file_str='min_recoKLb10_loss'), 
                      'rk5_1': LossStrategyParam(param=1., loss_fun=combine_loss_reco_kl_min, title_str='(R J1 + KL J1) & (R J2 + KL J2)', file_str='min_recoKLb1_loss'), 
                      'rk5_05': LossStrategyParam(param=0.5, loss_fun=combine_loss_reco_kl_min, title_str='(R J1 + 0.5*KL J1) & (R J2 + 0.5*KL J2)', file_str='min_recoKLb05_loss'), 
+                     'rk5_05max': LossStrategyParam(param=0.5, loss_fun=combine_loss_reco_kl_max, title_str='(R J1 + 0.5*KL J1) & (R J2 + 0.5*KL J2)', file_str='max_recoKLb05_loss'), 
                      'rk5_025': LossStrategyParam(param=0.25, loss_fun=combine_loss_reco_kl_min, title_str='(R J1 + 0.25*KL J1) & (R J2 + 0.25*KL J2)', file_str='min_recoKLb05_loss'), 
                      'rk5_01': LossStrategyParam(param=0.1, loss_fun=combine_loss_reco_kl_min, title_str='(R J1 + 0.1*KL J1) & (R J2 + 0.1*KL J2)', file_str='min_recoKLb01_loss'), 
                      'rk5_001': LossStrategyParam(param=0.01, loss_fun=combine_loss_reco_kl_min, title_str='(R J1 + sss0.01*KL J1) & (R J2 + ssss0.01*KL J2)', file_str='min_recoKLb001_loss'), 
