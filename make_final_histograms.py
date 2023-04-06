@@ -50,8 +50,8 @@ def inv_quantile_str(quantile):
 
 # In[30]:
 ##### Define directory paths
-case_qr_results = '/work/abal/CASE/QR_results'
-case_qr_models = '/work/abal/CASE/QR_models'
+case_qr_results = '/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_results'
+case_qr_models = '/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_models'
 #####
 
 # signal_name = sys.argv[1]
@@ -68,8 +68,8 @@ folds = 4
 qcd_sample = 'MCOrig_QR_Reco'
 run_n = 28332
 ##### Define directory paths
-case_qr_results = '/work/abal/CASE/QR_results'
-case_qr_models = '/work/abal/CASE/QR_models'
+case_qr_results = '/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_results'
+case_qr_models = '/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_models'
 
 #####
 
@@ -127,13 +127,13 @@ for siginj in signal_injections:
         sig_qrs = []
         for q in quantiles:
             if siginj == 0.:
-                tmpdf = pd.read_csv(f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv/bkg_lmfit_modelresult_fold_{k}_quant_q{q}.csv')
-                sig_tmpdf = pd.read_csv(f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv/sig_lmfit_modelresult_quant_q{q}.csv')
+                tmpdf = pd.read_csv(f'/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_models/run_{run_n}/models_lmfit_csv/bkg_lmfit_modelresult_fold_{k}_quant_q{q}.csv')
+                sig_tmpdf = pd.read_csv(f'/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_models/run_{run_n}/models_lmfit_csv/sig_lmfit_modelresult_quant_q{q}.csv')
                 sig_p = np.poly1d(sig_tmpdf['par'].values.tolist()[::-1])
                 sig_qrs.append(sig_p)
             else:
-                tmpdf = pd.read_csv(f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv_{signal_name}_{str(siginj)}/bkg_lmfit_modelresult_fold_{k}_quant_q{q}.csv')
-                sig_tmpdf = pd.read_csv(f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv_{signal_name}_{str(siginj)}/sig_lmfit_modelresult_quant_q{q}.csv')
+                tmpdf = pd.read_csv(f'/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_models/run_{run_n}/models_lmfit_csv_{signal_name}_{str(siginj)}/bkg_lmfit_modelresult_fold_{k}_quant_q{q}.csv')
+                sig_tmpdf = pd.read_csv(f'/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_models/run_{run_n}/models_lmfit_csv_{signal_name}_{str(siginj)}/sig_lmfit_modelresult_quant_q{q}.csv')
                 sig_p = np.poly1d(sig_tmpdf['par'].values.tolist()[::-1])
                 sig_qrs.append(sig_p)
             p = np.poly1d(tmpdf['par'].values.tolist()[::-1])
@@ -144,7 +144,7 @@ for siginj in signal_injections:
             #print(p(1200))
             qrs.append(p)
             
-        with h5py.File(f"/work/abal/CASE/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/sig_{qcd_sample}_fold_{k}.h5", "r") as bkg_f:
+        with h5py.File(f"/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/sig_{qcd_sample}_fold_{k}.h5", "r") as bkg_f:
             branch_names = bkg_f['eventFeatureNames'][()].astype(str)
             #print(branch_names)
             features = bkg_f['eventFeatures'][()]
@@ -194,7 +194,7 @@ for siginj in signal_injections:
 
         if siginj == 0.:
             if k == 0:
-                with h5py.File(f"/work/abal/CASE/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/{signal_name}.h5", "r") as sig_f:
+                with h5py.File(f"/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/{signal_name}.h5", "r") as sig_f:
                     branch_names = sig_f['eventFeatureNames'][()].astype(str)
                     #print(branch_names)
                     features = sig_f['eventFeatures'][()]
@@ -244,7 +244,7 @@ for siginj in signal_injections:
                         sig_mjj = np.concatenate((sig_mjj,np.expand_dims(mjj,axis=-1)))
 
         if siginj != 0.:
-            with h5py.File(f"/work/abal/CASE/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/data_{signal_name}_{siginj}_fold_{k}.h5", "r") as data_f:
+            with h5py.File(f"/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/data_{signal_name}_{siginj}_fold_{k}.h5", "r") as data_f:
                 branch_names = data_f['eventFeatureNames'][()].astype(str)
                 #print(branch_names)
                 features = data_f['eventFeatures'][()]
@@ -294,7 +294,7 @@ for siginj in signal_injections:
                     data_mjj = np.concatenate((data_mjj,np.expand_dims(mjj,axis=-1)))
 
             if k == 0:
-                with h5py.File(f"/work/abal/CASE/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/{signal_name}.h5", "r") as sig_f:
+                with h5py.File(f"/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/{signal_name}.h5", "r") as sig_f:
                     branch_names = sig_f['eventFeatureNames'][()].astype(str)
                     #print(branch_names)
                     features = sig_f['eventFeatures'][()]
@@ -344,7 +344,7 @@ for siginj in signal_injections:
                         sig_mjj = np.concatenate((sig_mjj,np.expand_dims(mjj,axis=-1)))
 
 
-                with h5py.File(f"/work/abal/CASE/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/injected_{signal_name}_{siginj}.h5", "r") as inj_f:
+                with h5py.File(f"/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_results/events/run_{run_n}/sig_{signal_name}/xsec_0/loss_rk5_05/injected_{signal_name}_{siginj}.h5", "r") as inj_f:
                     branch_names = inj_f['eventFeatureNames'][()].astype(str)
                     #print(branch_names)
                     features = inj_f['eventFeatures'][()]
@@ -408,7 +408,7 @@ for siginj in signal_injections:
     outfilename = 'bkg'
     if siginj != 0:
         outfilename = 'bkg_%s_%s'%(signal_name,str(siginj))
-    hf = h5py.File(f'/work/abal/CASE/QR_datasets/run_{run_n}/{outfilename}.h5', 'w')
+    hf = h5py.File(f'/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_datasets/run_{run_n}/{outfilename}.h5', 'w')
     hf.create_dataset('mjj', data=np.array(all_mjj))
     hf.create_dataset('loss', data=np.array(all_loss))
     hf.create_dataset('sel_q30', data=np.array(all_sel_q70))
@@ -422,7 +422,7 @@ for siginj in signal_injections:
     hf.close()
     if siginj == 0:
         sig_outfilename = 'signal_%s'%(signal_name)
-        sig_hf = h5py.File(f'/work/abal/CASE/QR_datasets/run_{run_n}/{sig_outfilename}.h5', 'w')
+        sig_hf = h5py.File(f'/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_datasets/run_{run_n}/{sig_outfilename}.h5', 'w')
         sig_hf.create_dataset('mjj', data=np.array(sig_mjj))
         sig_hf.create_dataset('loss', data=np.array(sig_loss))
         sig_hf.create_dataset('sel_q30', data=np.array(sig_sel_q70))
@@ -437,7 +437,7 @@ for siginj in signal_injections:
         
     if siginj != 0:
         data_outfilename = 'data_%s_%s'%(signal_name,str(siginj))
-        data_hf = h5py.File(f'/work/abal/CASE/QR_datasets/run_{run_n}/{data_outfilename}.h5', 'w')
+        data_hf = h5py.File(f'/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_datasets/run_{run_n}/{data_outfilename}.h5', 'w')
         data_hf.create_dataset('mjj', data=np.array(data_mjj))
         data_hf.create_dataset('loss', data=np.array(data_loss))
         data_hf.create_dataset('sel_q30', data=np.array(data_sel_q70))
@@ -452,7 +452,7 @@ for siginj in signal_injections:
         plt.plot()
 
         sig_outfilename = 'signal_%s_%s'%(signal_name,str(siginj))
-        sig_hf = h5py.File(f'/work/abal/CASE/QR_datasets/run_{run_n}/{sig_outfilename}.h5', 'w')
+        sig_hf = h5py.File(f'/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_datasets/run_{run_n}/{sig_outfilename}.h5', 'w')
         sig_hf.create_dataset('mjj', data=np.array(sig_mjj))
         sig_hf.create_dataset('loss', data=np.array(sig_loss))
         sig_hf.create_dataset('sel_q30', data=np.array(sig_sel_q70)) # Most QCD like
@@ -467,7 +467,7 @@ for siginj in signal_injections:
 
 
         inj_outfilename = 'injected_%s_%s'%(signal_name,str(siginj))
-        inj_hf = h5py.File(f'/work/abal/CASE/QR_datasets/run_{run_n}/{inj_outfilename}.h5', 'w')
+        inj_hf = h5py.File(f'/eos/uscms/store/user/izoi/CASE/CASE_Feb2023/QR_datasets/run_{run_n}/{inj_outfilename}.h5', 'w')
         inj_hf.create_dataset('mjj', data=np.array(inj_mjj))
         inj_hf.create_dataset('loss', data=np.array(inj_loss))
         inj_hf.create_dataset('sel_q30', data=np.array(inj_sel_q70))

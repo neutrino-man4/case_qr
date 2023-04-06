@@ -78,12 +78,16 @@ def fitted_selection(sample, strategy_id, polynomial):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal c.s to inject (default = 0.). Value = injection* 1000 fb-1")
+parser.add_argument("-r","--run",type=int,help="Provide the new run number to identify your new results")
 args = parser.parse_args()
-
+tag = 'nominal'
+run=args.run
 #sample = sys.argv[1] #'grav_3p5_narrow'
 #mass = float(sys.argv[2])
 #inj = float(sys.argv[3])
-sample = 'WkkToWRadionToWWW_M3000_Mr170Reco'
+#sample = 'WkkToWRadionToWWW_M3000_Mr170Reco'
+sample = 'WpToBpT_Wp3000_Bp400_Top170_ZbtReco'
+#sample = 'XToYYprimeTo4Q_MX3000_MY170_MYprime170_narrowReco' #'XToYYprimeTo4Q_MX2000_MY400_MYprime170_narrowReco' #'WkkToWRadionToWWW_M3000_Mr170Reco'
 mass = 3000.
 inj=args.injection
 print(inj)
@@ -117,14 +121,15 @@ regions = ["A","B","C","D","E"]
 
 # to run
 Parameters = recordtype('Parameters','run_n, qcd_sample_id, sig_sample_id, strategy_id, epochs, kfold, poly_order, read_n')
-params = Parameters(run_n=28332,
+params = Parameters(run_n=run,
                     qcd_sample_id='qcdSigMCOrigReco',
                     sig_sample_id=None, # set sig id later in loop
+                    # strategy_id='rk5_05max',
                     strategy_id='rk5_05',
                     epochs=800,
                     kfold=4,
                     #kfold=3,
-                    poly_order=6,
+                    poly_order=3,
                     read_n=int(1e8))
 
 
@@ -192,7 +197,9 @@ for k in range(params.kfold):
     for sig_sample_id, sig_in_training_nums, mass in zip(signals, sig_in_training_nums_arr, masses):
         
         params.sig_sample_id = sig_sample_id
-        sig_sample_ini = js.JetSample.from_input_dir(params.sig_sample_id, paths.sample_dir_path(params.sig_sample_id), **cuts.signalregion_cuts)
+        print ("params.sig_sample_id ",params.sig_sample_id)
+        print ("paths.sample_dir_path(params.sig_sample_id) ",paths.sample_dir_path(params.sig_sample_id))
+        sig_sample_ini = js.JetSample.from_input_dir(params.sig_sample_id, paths.sample_dir_path(params.sig_sample_id), tag=tag, **cuts.signalregion_cuts)
         
         # ************************************************************
         #     for each signal xsec: train and apply QR
@@ -215,11 +222,18 @@ for k in range(params.kfold):
 
 
             print("Selected QCD events: ", params.qcd_sample_id)
-            signal_events_inclusive = 150000#float(get_generated_events(params.sig_sample_id))
-            signal_events_selected = float(len(sig_sample_ini))
-            exp_incl_events = float(inj*1000)*float(lumi)
-            exp_sel_events = exp_incl_events * signal_events_selected/signal_events_inclusive
-            how_much_to_inject = int(exp_sel_events/params.kfold)
+            
+            # previous xsec implementation
+            # signal_events_inclusive = 150000#float(get_generated_events(params.sig_sample_id))
+            # signal_events_selected = float(len(sig_sample_ini))
+            # exp_incl_events = float(inj*1000)*float(lumi)
+            # exp_sel_events = exp_incl_events * signal_events_selected/signal_events_inclusive
+            # how_much_to_inject = int(exp_sel_events/params.kfold)
+            
+            # Now from Oz:
+            # For the XYY' I propose we do injections of 480, 360, 240, 160, 100 events
+            # For the W' I propose we do injections of 1300, 1100, 900, 700, 500, 300 events
+            how_much_to_inject = int(inj/params.kfold)
             print("%%%%%%%%%%%%%%%%%%%%")
             print("Injecting %i signal events"%how_much_to_inject)
             print("%%%%%%%%%%%%%%%%%%%%")
@@ -244,8 +258,8 @@ for k in range(params.kfold):
 #print("Dictionary:")
 #print(discriminators)
 
-bin_low = 1100
-bin_high = 8010
+bin_low = 1455 
+bin_high = 5500
 
 bins = np.linspace(bin_low,bin_high,bin_high-bin_low)
 
