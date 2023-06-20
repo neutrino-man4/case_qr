@@ -1,3 +1,9 @@
+# Modified by: Aritra Bal, 15.06.2023
+# To be used for training QR on Signal Region (SR) data for final unblinding. 
+# SR Data was reconstructed using VAE Run 141098 trained on Data Sideband.  
+# Note: Code has been modified slightly from 'happy config' to remove dependence on redundant sig_in_training_num and mass variables 
+
+
 import os
 import subprocess
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -68,8 +74,13 @@ def fitted_selection(sample, strategy_id, polynomial):
     loss_cut = polynomial
     return loss > loss_cut(sample['mJJ'])
 
+def write_log(dir,comments):
+    with open(os.path.join(dir,'log.txt'), 'w') as f:
+        f.write(f'QR attempt = {comments[0]}')
+        for l in comments:
+            f.write(l)
 
-#set_seeds(777)
+set_seeds(1998)
 
 #****************************************#
 #           set runtime params
@@ -80,18 +91,18 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal c.s to inject (default = 0.). Value = injection* 1000 fb-1")
 parser.add_argument("-r","--run",type=int,help="Provide the new run number to identify your new results")
 parser.add_argument("-s","--save", action='store_true')
+parser.add_argument("-l","--load", action='store_true')
 
 args = parser.parse_args()
 tag = 'nominal'
 run=args.run
-#sample = sys.argv[1] #'grav_3p5_narrow'
-#mass = float(sys.argv[2])
-#inj = float(sys.argv[3])
-#sample = 'WkkToWRadionToWWW_M3000_Mr170Reco'
+
+comments = [4,'Train test split = see log of attempt 3', 'Same QR model as 3 used here', 'Only smoothing upper range increased to 3']
+
 sample = 'WpToBpT_Wp3000_Bp400_Top170_ZbtReco'
 #sample = 'XToYYprimeTo4Q_MX3000_MY170_MYprime170_narrowReco' #'XToYYprimeTo4Q_MX2000_MY400_MYprime170_narrowReco' #'WkkToWRadionToWWW_M3000_Mr170Reco'
 mass = 3000.
-inj=args.injection
+inj=0.
 print(inj)
 signal_contamin = { ('na', 0): [[0]]*4,
                     ('na', 100): [[1061], [1100], [1123], [1140]], # narrow signal. number of signal contamination; len(sig_in_training_nums) == len(signals)
@@ -110,7 +121,7 @@ signal_contamin = { ('na', 0): [[0]]*4,
 # signals
 resonance = 'na'
 signals = [sample]
-masses = [mass]
+
 
 xsecs = [0.]
 sig_in_training_nums_arr = signal_contamin[(resonance, xsecs[0])] # TODO: adapt to multiple xsecs
@@ -129,8 +140,7 @@ quantiles = [0.15, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99]
 # to run
 Parameters = recordtype('Parameters','run_n, qcd_sample_id, sig_sample_id, strategy_id, epochs, kfold, poly_order, read_n')
 params = Parameters(run_n=run,
-                    qcd_sample_id='qcdSigMCOrigReco',
-                    #qcd_sample_id='qcdSideDataReco',
+                    qcd_sample_id='qcdSRDataReco',
                     sig_sample_id=None, # set sig id later in loop
                     # strategy_id='rk5_05max',
                     strategy_id='rk5_05',
@@ -185,16 +195,10 @@ injected_signal_samples = []
 for k in range(params.kfold):
 
     # if datasets not yet prepared, prepare them, dump and return (same qcd train and testsample for all signals and all xsecs)
-    qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.signalregion_cuts)
-    nosiginj_chunks.append(qcd_train_sample)
-
-
-for k in range(params.kfold):
-
-    # if datasets not yet prepared, prepare them, dump and return (same qcd train and testsample for all signals and all xsecs)
 
     #qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.signalregion_Uppercuts)
     qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.signalregion_cuts)
+    nosiginj_chunks.append(qcd_train_sample)
 
     # test sample corresponds to the other N-1 folds. It will not be used in the following.
     
@@ -202,18 +206,26 @@ for k in range(params.kfold):
     #      for each signal: QR
     #****************************************#
     
-    for sig_sample_id, sig_in_training_nums, mass in zip(signals, sig_in_training_nums_arr, masses):
+    for sig_sample_id in signals:
         
         params.sig_sample_id = sig_sample_id
         print ("params.sig_sample_id ",params.sig_sample_id)
         print ("paths.sample_dir_path(params.sig_sample_id) ",paths.sample_dir_path(params.sig_sample_id))
         sig_sample_ini = js.JetSample.from_input_dir(params.sig_sample_id, os.path.join(paths.sample_dir_path(params.sig_sample_id),tag), recursive=False, **cuts.signalregion_cuts)
-        
+        # Directory structure is like:
+        #  - SIGNAL_DIRECTORY
+        #  ---- nominal
+        #  ---- JES_up
+        #  ---- JES_down
+        #  ---- and so on
+        # Hence the additional directory needs to be entered into, to retrieve only the nominal signal file (or whatever you set "tag" equal to)
+
+
         # ************************************************************
         #     for each signal xsec: train and apply QR
         # ************************************************************
         
-        for xsec, sig_in_training_num in zip(xsecs, sig_in_training_nums):
+        for xsec in xsecs:
             
             param_dict = {'$sig_name$': params.sig_sample_id, '$sig_xsec$': str(int(xsec)), '$loss_strat$': params.strategy_id}
             experiment = ex.Experiment(run_n=params.run_n, param_dict=param_dict).setup(model_dir_qr=True, analysis_dir_qr=True)
@@ -247,24 +259,43 @@ for k in range(params.kfold):
             print("%%%%%%%%%%%%%%%%%%%%")
 
             if how_much_to_inject == 0:
-               mixed_train_sample, mixed_valid_sample = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.66)
+                print(f"No signal injection performed since no. of injected events = {how_much_to_inject}")
+                #mixed_train_sample, mixed_valid_sample = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.8) # original config: 0.66 split fraction
+                mixed_train_sample, mixed_valid_sample = qcd_train_sample,qcd_test_sample_ini
             else:
                mixed_train_sample, mixed_valid_sample, injected_signal = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.66)
                injected_signal_samples.append(injected_signal)
             
             if k == 0:
-                #sig_sample.dump(result_paths.sample_file_path(params.sig_sample_id))
+                sig_sample.dump(result_paths.sample_file_path(params.sig_sample_id,mkdir=True))
                 signal_samples.append(sig_sample)
 
             chunks.append(mixed_train_sample.merge(mixed_valid_sample))
                 
             # train QR model
-            discriminator = qrwf.train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params)
+            if not args.load:
+                discriminator = qrwf.train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params)
+            else:
+                discriminator=disc.VQRv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=30)
+                qr_save_dir=os.path.join(experiment.model_dir_qr,f'unblinded_QR_models','3')
+                discriminator.load(os.path.join(qr_save_dir,f'SR_data_fold_{k}.h5'))
 
             discriminators.update({"fold_%s"%str(k):discriminator})
 
 #print("Dictionary:")
 #print(discriminators)
+if args.save:
+    qr_save_dir=os.path.join(experiment.model_dir_qr,f'unblinded_QR_models',str(comments[0]))
+    pathlib.Path(qr_save_dir).mkdir(exist_ok=True,parents=True)
+    for k in range(0,params.kfold):
+        disc_name=os.path.join(qr_save_dir,f'SR_data_fold_{k}.h5')
+        discriminators[f"fold_{k}"].save(disc_name)
+        print(f'Discriminators saved to {qr_save_dir}')    
+    print('HAAAA')
+    write_log(qr_save_dir,comments)
+
+    
+    #sys.exit(0)
 
 bin_low = 1455 
 bin_high = 5500
@@ -325,36 +356,43 @@ for k in range(0,params.kfold):
         df = pd.DataFrame.from_dict(data)
 
         if inj == 0:
-            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv','happy_config')
+            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv','unblind_data_SR',str(comments[0]))
             subprocess.call('mkdir -p {}'.format(csv_name),shell=True)
             df.to_csv('{}/bkg_lmfit_modelresult_fold_{}_quant_q{:02}.csv'.format(csv_name,str(k),int(inv_quant*100)))
+            write_log(csv_name,comments)
+
         else:
-            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj),'happy_config')
+            print('There should be no signal injection'); sys.exit(0)
+            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj),'unblind_data_SR')
             subprocess.call('mkdir -p {}'.format(csv_name),shell=True)
             df.to_csv('{}/bkg_lmfit_modelresult_fold_{}_quant_q{:02}.csv'.format(csv_name,str(k),int(inv_quant*100)))
 
         cut_dict['{}_q{:02}'.format(str(k),int(inv_quant*100))] = y_mean
 
-    # if inj == 0:
-    #     nosiginj_chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True),fold=k)
-    # else:
-    #     chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)),fold=k)
+    if inj == 0:
+        nosiginj_chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True),fold=k)
+    else:
+        chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)),fold=k)
+
+
+
 
 
 if inj == 0:
     final_bkgsample = nosiginj_chunks[0]
     for k in range(1,params.kfold):
         final_bkgsample = final_bkgsample.merge(nosiginj_chunks[k])
-    #final_bkgsample.dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True))
+    final_bkgsample.dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True))
 else:
+    print('There should be no signal injection'); sys.exit(0)
     final_datasample = chunks[0]
     for k in range(1,params.kfold):
         final_datasample = final_datasample.merge(chunks[k])
-    #final_datasample.dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)))
+    final_datasample.dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)))
     final_injected_signal_sample = injected_signal_samples[0]
     for k in range(1,params.kfold):
         final_injected_signal_sample = final_injected_signal_sample.merge(injected_signal_samples[k])
-    #final_injected_signal_sample.dump(result_paths.sample_file_path(params.sig_sample_id, mkdir=True, overwrite=True, customname='injected_{}_{}'.format(params.sig_sample_id,inj)))
+    final_injected_signal_sample.dump(result_paths.sample_file_path(params.sig_sample_id, mkdir=True, overwrite=True, customname='injected_{}_{}'.format(params.sig_sample_id,inj)))
 
 
 sig_cut_dict = {}
@@ -404,10 +442,9 @@ for q,quantile in enumerate(quantiles):
     data = {'par':pars,'err':parserr}
     df = pd.DataFrame.from_dict(data)
     if inj == 0:
-        csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv','happy_config')            
+        csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv','unblind_data_SR',str(comments[0]))            
         df.to_csv('{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(csv_name,int(inv_quant*100)))
     else:
-        csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj),'happy_config')
+        print('There should be no signal injection'); sys.exit(0)
+        csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj),'unblind_data_SR')
         df.to_csv('{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(csv_name,int(inv_quant*100)))
-    #for i,s in enumerate(signal_samples):
-       #s.dump(result_paths.sample_file_path(params.sig_sample_id))

@@ -33,6 +33,13 @@ def vector_quantiles_loss(quantiles):
         return tf.where(err>=0, np.array(quantiles)*err, (np.array(quantiles)-1)*err)
     return loss
 
+def vector_expectiles_loss(quantiles):
+    @tf.function
+    def loss(target, preds):
+        err = (preds - target)*(preds - target)
+
+        return tf.where(target>preds, np.array(quantiles)*err, (1-np.array(quantiles))*err)
+    return loss
 
 def lambda_quantile_loss(quantile):
     @tf.function
@@ -166,6 +173,29 @@ class VectorQuantileRegression():
         model.summary()
         return model
 
+
+class VectorExpectileRegression():
+
+    def __init__(self, quantiles, n_layers=5, n_nodes=20, x_mu_std=(0.,1.), optimizer='adam', initializer='he_uniform', activation='elu'):
+        self.quantiles = quantiles
+        self.n_layers = n_layers
+        self.n_nodes = n_nodes
+        self.x_mu_std = x_mu_std
+        self.optimizer = optimizer
+        self.initializer = initializer
+        self.activation = activation
+
+    def build(self):
+        inputs = tf.keras.Input(shape=(1,))
+        x = layers.StdNormalization(*self.x_mu_std)(inputs)
+        for _ in range(self.n_layers):
+            x = tf.keras.layers.Dense(self.n_nodes, kernel_initializer=self.initializer, activation=self.activation)(x)
+        outputs = tf.keras.layers.Dense(len(self.quantiles), kernel_initializer=self.initializer)(x)
+        #model = printeverybatch(inputs, outputs)
+        model = tf.keras.Model(inputs, outputs)
+        model.compile(loss=vector_expectiles_loss(self.quantiles), optimizer=self.optimizer) # Adam(lr=1e-3) TODO: add learning rate
+        model.summary()
+        return model
 
 
 

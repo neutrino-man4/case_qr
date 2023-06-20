@@ -36,3 +36,5 @@ def inject_signal(qcd_train_sample, sig_sample, sig_in_training_num, train_split
     return mixed_sample_train, mixed_sample_valid, sig_train_sample
 
 
+def perform_jet_mixing(qcd_injected_sample):
+    return qcd_injected_sample.perform_jet_mixing()

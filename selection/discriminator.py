@@ -3,7 +3,7 @@ import time
 from abc import ABCMeta, abstractmethod
 import tensorflow as tf
 import sklearn.ensemble as scikit
-import case_qr.selection.quantile_regression as qr
+import case_qr_fixed.selection.quantile_regression as qr
 import case_paths.jet_sample as js
 import case_vae.training as train
 import case_vae.vae.layers as layers
@@ -585,11 +585,41 @@ class VQRv1Discriminator_KerasAPI(VQRDiscriminator):
        
         return self.history.history['loss'], self.history.history['val_loss']
 
-    def predict(self, data):
+    def predict(self, data,flatten=True):
         if isinstance(data, js.JetSample):
             data = data[self.mjj_key]
         xx = data #self.scale_input(data)
 
-        predicted = self.model.predict(xx).flatten() 
+        predicted = self.model.predict(xx) 
+        if flatten: 
         # return self.unscale_output(predicted)
+            return predicted.flatten()
         return predicted
+
+
+class VERv1Discriminator_KerasAPI(VQRDiscriminator):
+    """docstring for QRDiscriminator_KerasAPI"""
+    def __init__(self, **kwargs):
+        super(VERv1Discriminator_KerasAPI, self).__init__(**kwargs)
+
+    def fit(self, train_sample, valid_sample):
+        # prepare training set
+        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample)
+
+        self.model = qr.VectorExpectileRegression(quantiles=self.quantiles, x_mu_std=(np.mean(x_train), np.std(x_train)), **self.model_params).build()
+        self.history = self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_sz, verbose=2, validation_data=(x_valid, y_valid), shuffle=True, \
+            callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1), tf.keras.callbacks.ReduceLROnPlateau(factor=0.2, patience=3, verbose=1)])
+       
+        return self.history.history['loss'], self.history.history['val_loss']
+
+    def predict(self, data,flatten=True):
+        if isinstance(data, js.JetSample):
+            data = data[self.mjj_key]
+        xx = data #self.scale_input(data)
+
+        predicted = self.model.predict(xx) 
+        if flatten: 
+        # return self.unscale_output(predicted)
+            return predicted.flatten()
+        return predicted
+    

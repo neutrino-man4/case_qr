@@ -1,3 +1,6 @@
+# For training a QR/ER only without any polynomial smoothing. 
+
+
 import os
 import subprocess
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -79,11 +82,12 @@ def fitted_selection(sample, strategy_id, polynomial):
 parser = argparse.ArgumentParser()
 parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal c.s to inject (default = 0.). Value = injection* 1000 fb-1")
 parser.add_argument("-r","--run",type=int,help="Provide the new run number to identify your new results")
-parser.add_argument("-s","--save", action='store_true')
-
+parser.add_argument("--save-sig-samples", action='store_true')
+parser.add_argument("--save-bkg", action='store_true')
 args = parser.parse_args()
 tag = 'nominal'
 run=args.run
+
 #sample = sys.argv[1] #'grav_3p5_narrow'
 #mass = float(sys.argv[2])
 #inj = float(sys.argv[3])
@@ -116,15 +120,13 @@ xsecs = [0.]
 sig_in_training_nums_arr = signal_contamin[(resonance, xsecs[0])] # TODO: adapt to multiple xsecs
 
 # quantiles
-quantiles_extra=np.linspace(0.,0.5,51).tolist()
+quantiles_extra=np.around(np.linspace(0.01,0.3,30),2)
 #quantiles = [0.15, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99]
-quantiles=[quantiles_extra]+[0.7,0.9,0.95,0.99]
+quantiles=quantiles_extra.tolist()+[0.9,0.95,0.99]
 #quantiles = [0.1, 0.3]
 regions = ["A","B","C","D","E"]
 #quantiles = [0.5]
-
-
-quantiles = [0.15, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99]
+#quantiles = [0.3, 0.5, 0.7, 0.9, 0.95, 0.99]
 
 # to run
 Parameters = recordtype('Parameters','run_n, qcd_sample_id, sig_sample_id, strategy_id, epochs, kfold, poly_order, read_n')
@@ -182,33 +184,59 @@ chunks = []
 signal_samples = []
 injected_signal_samples = []
 
+
+if args.save_sig_samples:
+    for sig_sample_id, sig_in_training_nums, mass in zip(signals, sig_in_training_nums_arr, masses):
+        params.sig_sample_id = sig_sample_id
+        sig_sample_ini = js.JetSample.from_input_dir(params.sig_sample_id, paths.sample_dir_path(params.sig_sample_id), tag=tag, srecursive=False, **cuts.signalregion_cuts)
+        sig_sample = copy.deepcopy(sig_sample_ini)
+        for xsec, sig_in_training_num in zip(xsecs, sig_in_training_nums):
+            
+            param_dict = {'$sig_name$': params.sig_sample_id, '$sig_xsec$': str(int(xsec)), '$loss_strat$': params.strategy_id}
+            experiment = ex.Experiment(run_n=params.run_n, param_dict=param_dict).setup(model_dir_qr=True, analysis_dir_qr=True)
+            result_paths = sf.SamplePathDirFactory(sdfs.path_dict).update_base_path({'$run$': str(params.run_n), **param_dict}) # in selection paths new format with run_x, sig_x, ...
+            signal_samples.append(sig_sample)
+
+    for i,s in enumerate(signal_samples):
+        s.dump(result_paths.sample_file_path(params.sig_sample_id))
+        print(f"signal file {i} dumped to {result_paths.sample_file_path(params.sig_sample_id)}")
+    print("Now exiting")
+    sys.exit(0)
+
+
+if args.save_bkg:
+    for k in range(params.kfold):
+
+        qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.sideband_cuts)
+        nosiginj_chunks.append(qcd_train_sample)
+
+    out_dir=f'/storage/9/abal/CASE/VAE_results/events/run_{run}/QR_dump/{params.qcd_sample_id}'
+    pathlib.Path(out_dir).mkdir(parents=True,exist_ok=True)
+    if inj == 0:
+        final_bkgsample = nosiginj_chunks[0]
+        for k in range(1,params.kfold):
+            final_bkgsample = final_bkgsample.merge(nosiginj_chunks[k])
+        out_dir=f'/storage/9/abal/CASE/VAE_results/events/run_{run}/QR_dump/{params.qcd_sample_id}'
+        final_bkgsample.dump(os.path.join(out_dir,f'{params.qcd_sample_id}.h5'))
+        outfile=os.path.join(out_dir,f'{params.qcd_sample_id}.h5')
+        for k in range(0,params.kfold):
+            nosiginj_chunks[k].dump(outfile,fold=k) 
+        #sys.exit(0)
+
+
 for k in range(params.kfold):
 
-    # if datasets not yet prepared, prepare them, dump and return (same qcd train and testsample for all signals and all xsecs)
-    qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.signalregion_cuts)
-    nosiginj_chunks.append(qcd_train_sample)
-
-
-for k in range(params.kfold):
-
-    # if datasets not yet prepared, prepare them, dump and return (same qcd train and testsample for all signals and all xsecs)
-
-    #qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.signalregion_Uppercuts)
-    qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.signalregion_cuts)
-
-    # test sample corresponds to the other N-1 folds. It will not be used in the following.
-    
-    #****************************************#
-    #      for each signal: QR
-    #****************************************#
+    qcd_train_sample, qcd_test_sample_ini = dapr.make_qcd_train_test_datasets(params, paths, which_fold=k, nfold=params.kfold, **cuts.sideband_cuts)
     
     for sig_sample_id, sig_in_training_nums, mass in zip(signals, sig_in_training_nums_arr, masses):
         
         params.sig_sample_id = sig_sample_id
         print ("params.sig_sample_id ",params.sig_sample_id)
         print ("paths.sample_dir_path(params.sig_sample_id) ",paths.sample_dir_path(params.sig_sample_id))
-        sig_sample_ini = js.JetSample.from_input_dir(params.sig_sample_id, os.path.join(paths.sample_dir_path(params.sig_sample_id),tag), recursive=False, **cuts.signalregion_cuts)
-        
+        if inj!=0:
+            sig_sample_ini = js.JetSample.from_input_dir(params.sig_sample_id, paths.sample_dir_path(params.sig_sample_id), tag=tag, **cuts.signalregion_cuts)
+            sig_sample = copy.deepcopy(sig_sample_ini)
+
         # ************************************************************
         #     for each signal xsec: train and apply QR
         # ************************************************************
@@ -218,7 +246,6 @@ for k in range(params.kfold):
             param_dict = {'$sig_name$': params.sig_sample_id, '$sig_xsec$': str(int(xsec)), '$loss_strat$': params.strategy_id}
             experiment = ex.Experiment(run_n=params.run_n, param_dict=param_dict).setup(model_dir_qr=True, analysis_dir_qr=True)
             result_paths = sf.SamplePathDirFactory(sdfs.path_dict).update_base_path({'$run$': str(params.run_n), **param_dict}) # in selection paths new format with run_x, sig_x, ...
-            
             # ************************************************************
             #                     train
             # ************************************************************
@@ -226,8 +253,7 @@ for k in range(params.kfold):
             # create new test samples for new xsec QR (quantile cut results)
             #qcd_test_sample = copy.deepcopy(qcd_test_sample_ini)
             
-            sig_sample = copy.deepcopy(sig_sample_ini)
-
+            
 
             print("Selected QCD events: ", params.qcd_sample_id)
             
@@ -247,19 +273,19 @@ for k in range(params.kfold):
             print("%%%%%%%%%%%%%%%%%%%%")
 
             if how_much_to_inject == 0:
-               mixed_train_sample, mixed_valid_sample = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.66)
+                mixed_train_sample, mixed_valid_sample = js.split_jet_sample_train_test(qcd_train_sample, 0.66)
             else:
-               mixed_train_sample, mixed_valid_sample, injected_signal = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.66)
-               injected_signal_samples.append(injected_signal)
+                mixed_train_sample, mixed_valid_sample, injected_signal = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.66)
+                injected_signal_samples.append(injected_signal)
             
-            if k == 0:
+                if k == 0:
                 #sig_sample.dump(result_paths.sample_file_path(params.sig_sample_id))
-                signal_samples.append(sig_sample)
+                    signal_samples.append(sig_sample)
 
             chunks.append(mixed_train_sample.merge(mixed_valid_sample))
                 
             # train QR model
-            discriminator = qrwf.train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params)
+            discriminator = qrwf.train_VERv1(quantiles, mixed_train_sample, mixed_valid_sample, params)
 
             discriminators.update({"fold_%s"%str(k):discriminator})
 
@@ -267,8 +293,8 @@ for k in range(params.kfold):
 #print(discriminators)
 
 bin_low = 1455 
-bin_high = 5500
-
+bin_high = 6500
+srange=[bin_low,bin_high]
 bins = np.linspace(bin_low,bin_high,bin_high-bin_low)
 
 bin_centers = [(high+low)/2 for low, high in zip(bins[:-1], bins[1:])]
@@ -276,138 +302,11 @@ bin_centers = [(high+low)/2 for low, high in zip(bins[:-1], bins[1:])]
 #bin_centers = [1200, 1300, 1474.1252, 1560.6403, 1694.2654, 1827.9368, 1961.5662, 2095.2969, 2228.7554, 2362.04, 2495.531, 2629.0693, 2762.6633, 2895.8464, 3030.178, 3163.2517, 3296.309, 3429.8882, 3563.1992, 3697.7837, 3828.7358, 3961.4727, 4099.5864, 4227.971, 4365.957, 4494.6973, 4632.1885, 4764.8906, 4893.6655, 5024.822]
 
 cut_dict = {}
-
+qcd_sample=params.qcd_sample_id.replace('Reco','')
+qr_save_dir=os.path.join(experiment.model_dir_qr,'trained_models',qcd_sample)
+pathlib.Path(qr_save_dir).mkdir(exist_ok=True,parents=True)
 for k in range(0,params.kfold):
-    for q,quantile in enumerate(quantiles):
-        inv_quant = round((1.-quantile),2)
-        qrcuts = np.empty([0, len(bin_centers)])
-        counter = 0 
-        for l in range(0,params.kfold):
-            if k == l:
-                continue
+    discriminators[f"fold_{k}"].save(os.path.join(qr_save_dir,f'{qcd_sample}_fold_{k}_100nodes_30expectiles.h5'))
+    print(f'Discriminators saved to {qr_save_dir}')
+print('HAAAA')
 
-            yss = discriminators["fold_%s"%str(l)].predict(bin_centers)
-            
-            split_yss = np.array(np.split(np.array(yss),len(bin_centers)),dtype=object)[:,q]
-            qrcuts = np.append(qrcuts, split_yss[np.newaxis,:], axis=0) 
-        
-        y_mean = np.mean(qrcuts,axis=0)
-
-        from lmfit.models import PolynomialModel
-        from lmfit.model import save_model, save_modelresult
-        
-        model = PolynomialModel(degree=params.poly_order)
-        x_model = []
-        y_model = []
-        w_model = []
-        for i in range(len(qrcuts)):
-            for j in range(len(qrcuts[0])):
-                x_model.append(bin_centers[j])
-
-                y_model.append(qrcuts[i][j])
-                w_model.append((1./500)*np.exp(-(bin_centers[j]-1450)/500.))
-                #w_model.append(1.)
-
-        pars = model.guess(y_model, x=x_model)
-        #pdb.set_trace()
-        out = model.fit(y_model, pars, weights=w_model, x=x_model)
-
-        pars = []
-        parserr = []
-        
-        for key in out.params:
-            print(key, "=", out.params[key].value, "+/-", out.params[key].stderr)
-            pars.append(out.params[key].value)
-            parserr.append(out.params[key].stderr)
-
-        
-        data = {'par':pars,'err':parserr}
-        df = pd.DataFrame.from_dict(data)
-
-        if inj == 0:
-            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv','happy_config')
-            subprocess.call('mkdir -p {}'.format(csv_name),shell=True)
-            df.to_csv('{}/bkg_lmfit_modelresult_fold_{}_quant_q{:02}.csv'.format(csv_name,str(k),int(inv_quant*100)))
-        else:
-            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj),'happy_config')
-            subprocess.call('mkdir -p {}'.format(csv_name),shell=True)
-            df.to_csv('{}/bkg_lmfit_modelresult_fold_{}_quant_q{:02}.csv'.format(csv_name,str(k),int(inv_quant*100)))
-
-        cut_dict['{}_q{:02}'.format(str(k),int(inv_quant*100))] = y_mean
-
-    # if inj == 0:
-    #     nosiginj_chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True),fold=k)
-    # else:
-    #     chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)),fold=k)
-
-
-if inj == 0:
-    final_bkgsample = nosiginj_chunks[0]
-    for k in range(1,params.kfold):
-        final_bkgsample = final_bkgsample.merge(nosiginj_chunks[k])
-    #final_bkgsample.dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True))
-else:
-    final_datasample = chunks[0]
-    for k in range(1,params.kfold):
-        final_datasample = final_datasample.merge(chunks[k])
-    #final_datasample.dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)))
-    final_injected_signal_sample = injected_signal_samples[0]
-    for k in range(1,params.kfold):
-        final_injected_signal_sample = final_injected_signal_sample.merge(injected_signal_samples[k])
-    #final_injected_signal_sample.dump(result_paths.sample_file_path(params.sig_sample_id, mkdir=True, overwrite=True, customname='injected_{}_{}'.format(params.sig_sample_id,inj)))
-
-
-sig_cut_dict = {}
-
-for q,quantile in enumerate(quantiles):
-    inv_quant = round((1.-quantile),2)
-    qrcuts = np.empty([0, len(bin_centers)])
-    counter = 0 
-    for l in range(0,params.kfold):
-        #if k == l:
-        #    continue
-        
-        yss = discriminators["fold_%s"%str(l)].predict(bin_centers)
-        
-        split_yss = np.array(np.split(np.array(yss),len(bin_centers)),dtype=object)[:,q]
-        qrcuts = np.append(qrcuts, split_yss[np.newaxis,:], axis=0) 
-        
-    y_mean = np.mean(qrcuts,axis=0)
-
-    from lmfit.models import PolynomialModel
-    from lmfit.model import save_model, save_modelresult
-    
-    model = PolynomialModel(degree=params.poly_order)
-    x_model = []
-    y_model = []
-    w_model = []
-    for i in range(len(qrcuts)):
-        for j in range(len(qrcuts[0])):
-            x_model.append(bin_centers[j])            
-            y_model.append(qrcuts[i][j])
-            w_model.append((1./500)*np.exp(-(bin_centers[j]-1450)/500.))
-            #w_model.append(1)
-
-    pars = model.guess(y_model, x=x_model)
-
-    out = model.fit(y_model, pars, weights=w_model, x=x_model)
-
-    pars = []
-    parserr = []
-    
-    for key in out.params:
-        #print(key, "=", out.params[key].value, "+/-", out.params[key].stderr)
-        pars.append(out.params[key].value)
-        parserr.append(out.params[key].stderr)
-
-    
-    data = {'par':pars,'err':parserr}
-    df = pd.DataFrame.from_dict(data)
-    if inj == 0:
-        csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv','happy_config')            
-        df.to_csv('{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(csv_name,int(inv_quant*100)))
-    else:
-        csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj),'happy_config')
-        df.to_csv('{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(csv_name,int(inv_quant*100)))
-    #for i,s in enumerate(signal_samples):
-       #s.dump(result_paths.sample_file_path(params.sig_sample_id))

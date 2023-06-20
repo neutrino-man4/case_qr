@@ -1,8 +1,8 @@
 import os
 
-import case_qr.selection.discriminator as disc
-import case_qr.selection.loss_strategy as lost
-import case_qr.util.string_constants_util as stco
+import case_qr_fixed.selection.discriminator as disc
+import case_qr_fixed.selection.loss_strategy as lost
+import case_qr_fixed.util.string_constants_util as stco
 import case_vae.training as train
 
 
@@ -59,6 +59,7 @@ def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, plot_
     print(f'\ntraining QR for quantile {quantiles}')
     print("###################")
     vqr_discriminator = disc.VQRv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=30)
+    # Note: Happy config has nodes = 30. ER tests were conducted with nodes = 100. 
     losses_train, losses_valid = vqr_discriminator.fit(mixed_train_sample, mixed_valid_sample)
     
     if plot_loss:
@@ -66,7 +67,23 @@ def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, plot_
         train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
    
     return vqr_discriminator
+
+def train_VERv1(quantiles, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
+
+    # train QR with lambda layer on qcd-signal-injected sample and quantile q
     
+    print("###################")
+    print(f'\ntraining ER for quantile {quantiles}')
+    print("###################")
+    ver_discriminator = disc.VERv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=100)
+    losses_train, losses_valid = ver_discriminator.fit(mixed_train_sample, mixed_valid_sample)
+    
+    if plot_loss:
+        plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantiles, xsec, params.strategy_id)
+        train.plot_training_results(losses_train, losses_valid, plot_suffix=plot_str[:-3], fig_dir='fig')
+   
+    return ver_discriminator
+
 
 def save_QR(discriminator, params, experiment, quantile, xsec, model_str=None):
     # save the model   
