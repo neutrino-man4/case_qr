@@ -16,7 +16,7 @@ import pandas as pd
 #import mplhep as hep
 import json
 #plt.style.use(hep.style.CMS)
-
+import subprocess
 #import ROOT
 #from ROOT import TCanvas, TPad, TFormula, TF1, TPaveLabel, TH1F, TFile
 #from ROOT import gROOT, gBenchmark
@@ -42,27 +42,29 @@ def inv_quantile_str(quantile):
     inv_quant = round((1.-quantile),2)
     return 'q{:02}'.format(int(inv_quant*100))
 
+def write_log(dir,comments):
+    with open(os.path.join(dir,'log.txt'), 'w') as f:
+        f.write(f'QR attempt = {comments[0]}'+'\n')
+        for l in comments[1:]:
+            f.write(l+'\n')
 
-# In[30]:
 ##### Define directory paths
 
-# signal_name = sys.argv[1]
-# #signal_injections = [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
-# #signal_injections = [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
-# signal_injections = [float(sys.argv[2])]
-# outfolder = sys.argv[3]
-# folds = int(sys.argv[4])
-############
 
 signal_name = 'WpToBpT_Wp3000_Bp400_Top170_ZbtReco'
+signal_name = 'XToYYprimeTo4Q_MX3000_MY170_MYprime170_narrowReco' #'XToYYprimeTo4Q_MX2000_MY400_MYprime170_narrowReco' #'WkkToWRadionToWWW_M3000_Mr170Reco'
 signal_injections = [0.]
-folds = 4
-qcd_sample = 'qcdSRData'
+folds = 20
+qcd_sample = 'qcdSROzData'
 run_n = 141098
 ##### Define directory paths
 case_qr_results = f'/storage/9/abal/CASE/QR_results/events/run_{run_n}'
 case_qr_models = '/work/abal/CASE/QR_models'
 
+####### FOR LOGGING PURPOSES ONLY ##########
+nAttempt=9
+bin_low = 1460 
+bin_high = 6800
 #####
 
 for siginj in signal_injections:
@@ -119,8 +121,8 @@ for siginj in signal_injections:
         sig_qrs = []
         for q in quantiles:
             if siginj == 0.:
-                tmpdf = pd.read_csv(f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv/unblind_data_SR/bkg_lmfit_modelresult_fold_{k}_quant_q{q}.csv')
-                sig_tmpdf = pd.read_csv(f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv/unblind_data_SR/sig_lmfit_modelresult_quant_q{q}.csv')
+                tmpdf = pd.read_csv(f'{case_qr_models}/run_{run_n}/models_lmfit_csv/unblind_data_SR/{nAttempt}/bkg_lmfit_modelresult_fold_{k}_quant_q{q}.csv')
+                sig_tmpdf = pd.read_csv(f'{case_qr_models}/run_{run_n}/models_lmfit_csv/unblind_data_SR/{nAttempt}/{signal_name}/sig_lmfit_modelresult_quant_q{q}.csv')
                 sig_p = np.poly1d(sig_tmpdf['par'].values.tolist()[::-1])
                 sig_qrs.append(sig_p)
             else:
@@ -139,7 +141,7 @@ for siginj in signal_injections:
             #print(p(1200))
             qrs.append(p)
             
-        with h5py.File(f"{case_qr_results}/sig_{signal_name}/xsec_0/loss_rk5_05/sig_{qcd_sample}_fold_{k}.h5", "r") as bkg_f:
+        with h5py.File(f"{case_qr_results}/sig_{signal_name}/xsec_0/loss_rk5_05/{nAttempt}/sig_{qcd_sample}_fold_{k}.h5", "r") as bkg_f:
             branch_names = bkg_f['eventFeatureNames'][()].astype(str)
             #print(branch_names)
             features = bkg_f['eventFeatures'][()]
@@ -189,7 +191,7 @@ for siginj in signal_injections:
 
         if siginj == 0.:
             if k == 0:
-                with h5py.File(f"{case_qr_results}/sig_{signal_name}/xsec_0/loss_rk5_05/{signal_name}.h5", "r") as sig_f:
+                with h5py.File(f"{case_qr_results}/sig_{signal_name}/xsec_0/loss_rk5_05/{nAttempt}/{signal_name}.h5", "r") as sig_f:
                     branch_names = sig_f['eventFeatureNames'][()].astype(str)
                     #print(branch_names)
                     features = sig_f['eventFeatures'][()]
@@ -245,16 +247,19 @@ for siginj in signal_injections:
         sig_event_features = np.concatenate((sig_mjj,sig_loss,sig_sel_q70,sig_sel_q50,sig_sel_q30,sig_sel_q10,sig_sel_q05,sig_sel_q01),axis=-1)
     print(all_event_features.shape)
     
-    case_qr_datasets='/ceph/abal/CASE/QR_datasets/run_{run_n}/unblinded_SRData'
+    case_qr_datasets=f'/ceph/abal/CASE/QR_datasets/run_{run_n}/unblinded_SRData/{nAttempt}'
     pathlib.Path(case_qr_datasets).mkdir(parents=True,exist_ok=True)
     print(f'Output datasets to be used for fitting are located at {case_qr_datasets}')
-    outfilename = 'bkg'
+    outfilename = 'bkg-2'
     dt = h5py.special_dtype(vlen=str)
 
     if siginj != 0:
         outfilename = 'bkg_%s_%s'%(signal_name,str(siginj))
 
     hf = h5py.File(os.path.join(case_qr_datasets,f'{outfilename}.h5'), 'w')
+    #write_log(case_qr_datasets,comments)
+    log_command = f'cp -r {case_qr_models}/run_{run_n}/models_lmfit_csv/unblind_data_SR/{nAttempt}/log.txt {case_qr_datasets}/'
+    subprocess.call(log_command,shell=True)
     hf.create_dataset('mjj', data=np.array(all_mjj))
     hf.create_dataset('loss', data=np.array(all_loss))
     hf.create_dataset('sel_q30', data=np.array(all_sel_q70))
