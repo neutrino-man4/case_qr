@@ -51,14 +51,14 @@ def train_QR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss
     return discriminator
 
 
-def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
+def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, batch_size=256, plot_loss=False):
 
     # train QR with lambda layer on qcd-signal-injected sample and quantile q
     
     print("###################")
     print(f'\ntraining QR for quantile {quantiles}')
     print("###################")
-    vqr_discriminator = disc.VQRv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=30)
+    vqr_discriminator = disc.VQRv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=batch_size, epochs=params.epochs,  n_layers=5, n_nodes=30)
     # Note: Happy config has nodes = 30. ER tests were conducted with nodes = 100. 
     losses_train, losses_valid = vqr_discriminator.fit(mixed_train_sample, mixed_valid_sample)
     

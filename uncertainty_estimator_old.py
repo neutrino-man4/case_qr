@@ -33,7 +33,7 @@ weights=['nom_weight', 'pdf_up', 'pdf_down', 'prefire_up', 'prefire_down', 'pile
 uncertainties = ['JES','JER','JMS','JMR','pdf','prefire','pileup','btag','PS_ISR','PS_FSR','F','R','RF','top_ptrw']
 
 # Define paths for reading input files
-case_poly_dir = f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv/unblind_data_SR/9'
+case_poly_dir = f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv/happy_config'
 case_reco_dir = f'/storage/9/abal/CASE/VAE_results/events/run_{run_n}'
 
 # Define paths for writing output
@@ -91,10 +91,10 @@ test_samples_Qstar_RS_W = [
                 'QstarToQW_M_5000_mW_25',
                 'QstarToQW_M_5000_mW_400',
                 'QstarToQW_M_5000_mW_80',    
-                # 'RSGravitonToGluonGluon_kMpl01_M_1000',
-                # 'RSGravitonToGluonGluon_kMpl01_M_2000',
-                # 'RSGravitonToGluonGluon_kMpl01_M_3000',
-                # 'RSGravitonToGluonGluon_kMpl01_M_5000',
+                'RSGravitonToGluonGluon_kMpl01_M_1000',
+                'RSGravitonToGluonGluon_kMpl01_M_2000',
+                'RSGravitonToGluonGluon_kMpl01_M_3000',
+                'RSGravitonToGluonGluon_kMpl01_M_5000',
                 'WkkToWRadionToWWW_M2000_Mr170',
                 'WkkToWRadionToWWW_M2000_Mr400',
                 'WkkToWRadionToWWW_M3000_Mr170',
@@ -126,24 +126,13 @@ for sig_id in tqdm.tqdm(signals):
     signal_loss={}
     sig_histograms={}
     num_events={}
-    eff={}
-    nom_eff={}
-    SF_lund={}
-    num_events_total={}
     diff_max={'signal_name':sig_id}
-    corrdiff_max={'signal_name':sig_id}
-    SF_max={'signal_name':sig_id}
     for uc in uc_variations:
         with h5py.File(os.path.join(case_reco_dir,sig_id+'_RECO',uc,sig_file),'r') as f:
             signal_jet_kinematics=f['eventFeatures'][()]
             if uc=='nominal':
                 signal_uc_weights=f['sys_weights'][()]
-                lund_weights=f['lund_weights'][()]
-                lund_weights_sys_var=f['lund_weights_sys_var'][()]*lund_weights
-                lund_weights_stat_var=f['lund_weights_stat_var'][()]
-                lund_weights_pt_var=f['lund_weights_pt_var'][()]
-                lund_weights_matching_unc=f['lund_weights_matching_unc'][()][0]
-                
+            
             signal_loss[uc] = np.minimum(signal_jet_kinematics[:,J1RECO]+0.5*signal_jet_kinematics[:,J1KL],signal_jet_kinematics[:,J2RECO]+0.5*signal_jet_kinematics[:,J2KL])
             signal_mjj[uc] = signal_jet_kinematics[:,MJJ]
     
@@ -161,78 +150,21 @@ for sig_id in tqdm.tqdm(signals):
     for uc in uc_variations:
         mask=signal_loss[uc]>sig_qrs['10'](signal_mjj[uc]) # For Q90
         if uc!='nominal':
-            eff[uc]=np.average(mask,weights=np.ones_like(signal_mjj[uc]))
-
+            num_events[uc]=np.count_nonzero(mask) # Count number of surviving events for the variations, where we have pT and M values. The array 'mask' will have True/False values, and all weights are one. 
         else:
             for id,w in enumerate(weights):
-                eff[w]=np.average(mask,weights=signal_uc_weights[:,id])
-                eff['unity_weight']=np.average(mask)
+                
+                num_events[w]=np.sum(signal_uc_weights[:,id][mask]) # For the uncertainties, each event has weight !=1. So we apply the mask to the weight array and then sum up the weights to get number of surviving events above Q90 ('Q10' is the inverse quantile used for the naming)
         # Number of surviving events is stored in the same dictionary for both the scaling and the uncertainties. 
-    ############ LUND WEIGHT UNCERTAINTIES
-    
-    nToys=100
-    nom_lund_weights=lund_weights[:,0]*np.ones_like(signal_uc_weights[:,0]) # Multiply nominal weights by lund weights 
-    eff['lund']=np.average(mask,weights=nom_lund_weights)
-    eff_toys=[]
-    pt_eff_toys=[]
-    for i in range(nToys):
-        stat_eff=np.average(mask,weights=lund_weights_stat_var[:,i])
-        pt_eff=np.average(mask,weights=lund_weights_pt_var[:,i])
-        eff_toys.append(stat_eff)
-        pt_eff_toys.append(pt_eff)
-    stat_toys_mean=np.mean(eff_toys)
-    stat_toys_std=np.std(eff_toys)
-    pt_toys_mean=np.mean(pt_eff_toys)
-    pt_toys_std=np.std(pt_eff_toys)
-
-    ##
-    SF_lund['lund_stat']=abs(stat_toys_mean-eff['lund'])/eff['nom_weight'] + stat_toys_std/eff['nom_weight']
-    SF_lund['lund_pt']=abs(pt_toys_mean-eff['lund'])/eff['nom_weight'] + pt_toys_std/eff['nom_weight']
-    # SF_lund['lund_stat']=abs(stat_toys_mean-eff['lund'])/eff['unity_weight'] + stat_toys_std/eff['unity_weight']
-    # SF_lund['lund_pt']=abs(pt_toys_mean-eff['lund'])/eff['unity_weight'] + pt_toys_std/eff['unity_weight']
-    ##
-    eff['lund_sys_up']=np.average(mask,weights=lund_weights_sys_var[:,0])
-    eff['lund_sys_down']=np.average(mask,weights=lund_weights_sys_var[:,1])
-    eff['lund_bquark_up']=np.average(mask,weights=lund_weights_sys_var[:,2])
-    eff['lund_bquark_down']=np.average(mask,weights=lund_weights_sys_var[:,3])
-    SF_lund['lund_sys_up']=(eff['lund_sys_up']-eff['lund'])/eff['nom_weight']
-    SF_lund['lund_sys_down']=(eff['lund_sys_down']-eff['lund'])/eff['nom_weight']
-    SF_lund['lund_bquark_up']=(eff['lund_bquark_up']-eff['lund'])/eff['nom_weight']
-    SF_lund['lund_bquark_down']=(eff['lund_bquark_down']-eff['lund'])/eff['nom_weight']
-    ###
-    # SF_lund['lund_sys_up']=(eff['lund_sys_up']-eff['lund'])/eff['unity_weight']
-    # SF_lund['lund_sys_down']=(eff['lund_sys_down']-eff['lund'])/eff['unity_weight']
-    # SF_lund['lund_bquark_up']=(eff['lund_bquark_up']-eff['lund'])/eff['unity_weight']
-    # SF_lund['lund_bquark_down']=(eff['lund_bquark_down']-eff['lund'])/eff['unity_weight']
-    ###
-    SF_lund['lund_sys']=max(abs(SF_lund['lund_sys_up']),abs(SF_lund['lund_sys_down']))
-    SF_lund['lund_bquark']=max(abs(SF_lund['lund_bquark_up']),abs(SF_lund['lund_bquark_down']))
-    
-    ############
+    nominal_events=num_events['nom_weight']    
     total=0.0
-    total_without_lund=0.0
     for u in uncertainties:
-        SF_up=(eff[u+'_up']-eff['nom_weight'])/eff['nom_weight'] # SF = scale factor
-        SF_down=(eff[u+'_down']-eff['nom_weight'])/eff['nom_weight']
-        SF_max[u]=round(max(abs(SF_down),abs(SF_up))*100,4)
-    
-    SF_max['lund']=np.round(eff['lund']/eff['nom_weight'],4)
-    #SF_max['lund']=eff['lund']/eff['unity_weight']
-    SF_max['lund_stat']=np.round(SF_lund['lund_stat']*100,4)
-    SF_max['lund_pt']=np.round(SF_lund['lund_pt']*100,4)
-    SF_max['lund_sys']=np.round(SF_lund['lund_sys']*100,4)
-    SF_max['lund_bquark']=np.round(SF_lund['lund_bquark']*100,4)
-    SF_max['lund_bad_matching_unc']=np.round(SF_max['lund']*lund_weights_matching_unc,4)
-
-    for u in SF_max:
-        if u=='signal_name': continue
-        total+=SF_max[u]**2
-        if "lund" not in u:
-            total_without_lund+=SF_max[u]**2
-    SF_max['total']=np.round(sqrt(total),4)
-    SF_max['total_without_lund']=np.round(sqrt(total_without_lund),4)
-    diffs.append(SF_max)
+        diff_up=(num_events[u+'_up']-nominal_events)/nominal_events
+        diff_down=(num_events[u+'_down']-nominal_events)/nominal_events
+        diff_max[u]=round(max(abs(diff_down),abs(diff_up))*100,4)
+        total+=diff_max[u]**2
+    diff_max['total']=sqrt(total)
+    diffs.append(diff_max)
     
 df=pd.DataFrame(diffs)
-#pdb.set_trace()
-df.to_csv(os.path.join(uc_output_dir,'uncertainties_updated_with_lund.csv'))
+df.to_csv(os.path.join(uc_output_dir,'uncertainties.csv'))
