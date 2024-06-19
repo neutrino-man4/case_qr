@@ -51,7 +51,7 @@ def train_QR(quantile, mixed_train_sample, mixed_valid_sample, params, plot_loss
     return discriminator
 
 
-def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, batch_size=256, plot_loss=False):
+def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, batch_size=256, plot_loss=False,override=False):
 
     # train QR with lambda layer on qcd-signal-injected sample and quantile q
     
@@ -60,7 +60,7 @@ def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, batch
     print("###################")
     vqr_discriminator = disc.VQRv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=batch_size, epochs=params.epochs,  n_layers=5, n_nodes=30)
     # Note: Happy config has nodes = 30. ER tests were conducted with nodes = 100. 
-    losses_train, losses_valid = vqr_discriminator.fit(mixed_train_sample, mixed_valid_sample)
+    losses_train, losses_valid = vqr_discriminator.fit(mixed_train_sample, mixed_valid_sample,override)
     
     if plot_loss:
         plot_str = stco.make_qr_model_str(params.run_n, params.sig_sample_id, quantiles, xsec, params.strategy_id)
@@ -68,14 +68,14 @@ def train_VQRv1(quantiles, mixed_train_sample, mixed_valid_sample, params, batch
    
     return vqr_discriminator
 
-def train_VERv1(quantiles, mixed_train_sample, mixed_valid_sample, params, plot_loss=False):
+def train_VERv1(quantiles, mixed_train_sample, mixed_valid_sample, params, batch_size=256, plot_loss=False):
 
     # train QR with lambda layer on qcd-signal-injected sample and quantile q
     
     print("###################")
     print(f'\ntraining ER for quantile {quantiles}')
     print("###################")
-    ver_discriminator = disc.VERv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=256, epochs=params.epochs,  n_layers=5, n_nodes=100)
+    ver_discriminator = disc.VERv1Discriminator_KerasAPI(quantiles=quantiles, loss_strategy=lost.loss_strategy_dict[params.strategy_id], batch_sz=batch_size, epochs=params.epochs,  n_layers=5, n_nodes=30)
     losses_train, losses_valid = ver_discriminator.fit(mixed_train_sample, mixed_valid_sample)
     
     if plot_loss:
