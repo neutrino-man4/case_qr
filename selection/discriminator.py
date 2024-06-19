@@ -427,6 +427,9 @@ class VDiscriminator(metaclass=ABCMeta):
         self.loss_strategy = loss_strategy
         self.quantiles = quantiles
         self.mjj_key = 'mJJ'
+        self.mSD_j1_key = 'j1M'
+        self.mSD_j2_key = 'j2M'
+        
 
     @abstractmethod
     def fit(self, jet_sample):
@@ -497,16 +500,24 @@ class VQRDiscriminator(VDiscriminator):
         return valid_loss / (step + 1)
 
 
-    def make_training_datasets(self, train_sample, valid_sample):
+    def make_training_datasets(self, train_sample, valid_sample,override=False):
         x_train = train_sample[self.mjj_key]
-        y_train = self.loss_strategy(train_sample)
         x_valid = valid_sample[self.mjj_key]
+        if override:
+            x_train = (train_sample[self.mSD_j1_key]+train_sample[self.mSD_j2_key])/2.    
+            x_valid = (valid_sample[self.mSD_j1_key]+valid_sample[self.mSD_j2_key])/2.    
+            print("\n\n\n Overriding variable to decorrelate. Will now decorrelate against mean soft-drop mass of the two jets in the event \n\n\n")
+            print("Take a deep breath to process what this means and why you are doing this")
+            import time;time.sleep(8)
+            print("Done? Let's continue \n\n\n")
+        
+        y_train = self.loss_strategy(train_sample)
         y_valid = self.loss_strategy(valid_sample)
         return (x_train, y_train), (x_valid, y_valid)
 
-    def fit(self, train_sample, valid_sample):
+    def fit(self, train_sample, valid_sample,override=False):
         # process the input
-        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample)
+        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample,override)
         train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(self.batch_sz)#.shuffle(self.batch_sz*10)
         valid_dataset = tf.data.Dataset.from_tensor_slices((x_valid, y_valid)).batch(self.batch_sz)
 
@@ -575,10 +586,10 @@ class VQRv1Discriminator_KerasAPI(VQRDiscriminator):
     def __init__(self, **kwargs):
         super(VQRv1Discriminator_KerasAPI, self).__init__(**kwargs)
 
-    def fit(self, train_sample, valid_sample):
+    def fit(self, train_sample, valid_sample,override=False):
         # prepare training set
-        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample)
-
+        (x_train, y_train), (x_valid, y_valid) = self.make_training_datasets(train_sample, valid_sample,override=override)
+        
         self.model = qr.VectorQuantileRegression(quantiles=self.quantiles, x_mu_std=(np.mean(x_train), np.std(x_train)), **self.model_params).build()
         self.history = self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_sz, verbose=2, validation_data=(x_valid, y_valid), shuffle=True, \
             callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1), tf.keras.callbacks.ReduceLROnPlateau(factor=0.2, patience=3, verbose=1)])
