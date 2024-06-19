@@ -126,8 +126,7 @@ for siginj in signal_injections:
                 sig_p = np.poly1d(sig_tmpdf['par'].values.tolist()[::-1])
                 sig_qrs.append(sig_p)
             else:
-                print('This block should not be running at all. Exiting.')
-                sys.exit(0)
+                print('This block should not be running at all. Exiting.');sys.exit(0)
                 tmpdf = pd.read_csv(f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv_{signal_name}_{str(siginj)}/bkg_lmfit_modelresult_fold_{k}_quant_q{q}.csv')
                 sig_tmpdf = pd.read_csv(f'/work/abal/CASE/QR_models/run_{run_n}/models_lmfit_csv_{signal_name}_{str(siginj)}/sig_lmfit_modelresult_quant_q{q}.csv')
                 sig_p = np.poly1d(sig_tmpdf['par'].values.tolist()[::-1])

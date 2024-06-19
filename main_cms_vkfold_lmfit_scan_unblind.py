@@ -285,7 +285,6 @@ if __name__ == "__main__":
                     sig_sample.dump(result_paths.sample_file_path(params.sig_sample_id,additional_dir=comments[0],mkdir=True))
                     signal_samples.append(sig_sample)
                     write_log(result_paths.sample_dir_path(params.sig_sample_id,additional_dir=comments[0]),comments)
-                import pdb;pdb.set_trace()
                 
                 chunks.append(mixed_train_sample.merge(mixed_valid_sample))
                     

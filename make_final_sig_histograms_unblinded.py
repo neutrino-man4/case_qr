@@ -53,7 +53,7 @@ def write_log(dir,comments):
 
 
 #signal_name = 'WpToBpT_Wp3000_Bp400_Top170_ZbtReco'
-signals=sana.all_samples
+signals=['XToYYprimeTo4Q_MX3000_MY25_MYprime400_narrowReco']
 signal_injections = [0.]
 folds = 20
 qcd_sample = 'qcdSROzData'
@@ -162,7 +162,7 @@ for signal_name in signals:
 
     sig_event_features = np.concatenate((sig_mjj,sig_loss,sig_sel_q70,sig_sel_q50,sig_sel_q30,sig_sel_q10,sig_sel_q05,sig_sel_q01),axis=-1)
     
-    case_qr_datasets=f'/ceph/abal/CASE/QR_datasets/run_{run_n}/unblinded_SRData/{nAttempt}'
+    case_qr_datasets=f'/ceph/abal/CASE/QR_datasets/run_{run_n}/unblinded_SRData/{nAttempt}/missing'
     pathlib.Path(case_qr_datasets).mkdir(parents=True,exist_ok=True)
     print(f'Output datasets to be used for fitting are located at {case_qr_datasets}')
     outfilename = 'bkg'
