@@ -33,8 +33,14 @@ from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import PolynomialFeatures
 import argparse
+import get_free_gpu_id as gpu
 
 
+if gpu.fetch_id()<0:
+    print("No GPU devices with sufficient memory. Try again when its free")
+    sys.exit(0)
+os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu.fetch_id())
+print(f"Using GPU: {gpu.fetch_id()}")
 
 def get_generated_events(filename):
 
@@ -93,11 +99,11 @@ bin_high = 6800
 nFolds = 4
 BSIZE = 256
 FRAC = 0.8
-nAttempt='4'
+nAttempt='1'
 load_attempt='1' # Only to be used if some existing model needs to be loaded. 
 pol_order = 3
 if __name__ == "__main__":
-    os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
+    
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-i","--injection",type=float,default=0.0,help="Set signal c.s to inject (default = 0.). Value = injection* 1000 fb-1")
@@ -113,10 +119,10 @@ if __name__ == "__main__":
     comments = [nAttempt,f'Train test split = {FRAC}', 'QR trained on QCD Monte Carlo in SR',f'smoothing range =[{bin_low},{bin_high}]',f'VAE Run = {args.run}',f'No. of folds = {nFolds}','Weighting: applied','mJJ>1460',f'batch_size = {BSIZE}',f'polynomial order = {pol_order}']
 
     #sample = 'WpToBpT_Wp3000_Bp400_Top170_ZbtReco'
-    sample = 'XToYYprimeTo4Q_MX5000_MY170_MYprime170_narrowReco' #'XToYYprimeTo4Q_MX2000_MY400_MYprime170_narrowReco' #'WkkToWRadionToWWW_M3000_Mr170Reco'
-    mass = 5000.
-    inj=0.
-    print(inj)
+    sample = 'XToYYprimeTo4Q_MX3000_MY400_MYprime400_narrowReco' #'XToYYprimeTo4Q_MX2000_MY400_MYprime170_narrowReco' #'WkkToWRadionToWWW_M3000_Mr170Reco'
+    mass = 3000.
+    inj=args.injection
+    print(f'Will inject {inj} events in total')
     signal_contamin = { ('na', 0): [[0]]*4,
                         ('na', 100): [[1061], [1100], [1123], [1140]], # narrow signal. number of signal contamination; len(sig_in_training_nums) == len(signals)
                         ('br', 0): [[0]]*4,
@@ -278,7 +284,7 @@ if __name__ == "__main__":
                     #mixed_train_sample, mixed_valid_sample = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.8) # original config: 0.66 split fraction
                     mixed_train_sample, mixed_valid_sample = js.split_jet_sample_train_test(qcd_train_sample, FRAC)
                 else:
-                    print('No signal injection required for training this QR'); sys.exit(0)
+                    #print('No signal injection required for training this QR'); sys.exit(0)
                     mixed_train_sample, mixed_valid_sample, injected_signal = dapr.inject_signal(qcd_train_sample, sig_sample_ini, how_much_to_inject, train_split = 0.66)
                     injected_signal_samples.append(injected_signal)
                     
@@ -380,41 +386,36 @@ if __name__ == "__main__":
                 write_log(csv_name,comments)
 
             else:
-                print('There should be no signal injection'); sys.exit(0)
-                csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj),'unblind_data_SR')
+                #print('There should be no signal injection'); sys.exit(0)
+                csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv',f'{sample}_{inj}',comments[0])
                 subprocess.call('mkdir -p {}'.format(csv_name),shell=True)
                 df.to_csv('{}/bkg_lmfit_modelresult_fold_{}_quant_q{:02}.csv'.format(csv_name,str(k),int(inv_quant*100)))
+                write_log(csv_name,comments)
 
             cut_dict['{}_q{:02}'.format(str(k),int(inv_quant*100))] = y_mean
 
-        if inj == 0:
-            # Dump the background files for each fold
-            nosiginj_chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id,additional_dir=comments[0],mkdir=True),fold=k)
-        else:
-            print('Signal injection cannot be non-zero')
-            sys.exit(0)
-            chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)),fold=k)
+        # Dump the background files for each fold
+        nosiginj_chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id,additional_dir=comments[0],mkdir=True),fold=k)
+        if inj>0.:
+            #print('Signal injection cannot be non-zero')
+            #sys.exit(0)
+            chunks[k].dump(result_paths.sample_file_path(params.qcd_sample_id, additional_dir=comments[0],mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)),fold=k)
 
-
-
-
-
-    if inj == 0:
-        final_bkgsample = nosiginj_chunks[0]
-        for k in range(1,params.kfold):
-            final_bkgsample = final_bkgsample.merge(nosiginj_chunks[k])
-            # Dump the final background file
-        final_bkgsample.dump(result_paths.sample_file_path(params.qcd_sample_id,additional_dir=comments[0], mkdir=True))
-    else:
-        print('There should be no signal injection'); sys.exit(0)
+    final_bkgsample = nosiginj_chunks[0]
+    for k in range(1,params.kfold):
+        final_bkgsample = final_bkgsample.merge(nosiginj_chunks[k])
+        # Dump the final background file
+    final_bkgsample.dump(result_paths.sample_file_path(params.qcd_sample_id,additional_dir=comments[0], mkdir=True))
+    if inj>0.:
+        #print('There should be no signal injection'); sys.exit(0)
         final_datasample = chunks[0]
         for k in range(1,params.kfold):
             final_datasample = final_datasample.merge(chunks[k])
-        final_datasample.dump(result_paths.sample_file_path(params.qcd_sample_id, mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)))
+        final_datasample.dump(result_paths.sample_file_path(params.qcd_sample_id,additional_dir=comments[0], mkdir=True, overwrite=True, customname='data_{}_{}'.format(sample,inj)))
         final_injected_signal_sample = injected_signal_samples[0]
         for k in range(1,params.kfold):
             final_injected_signal_sample = final_injected_signal_sample.merge(injected_signal_samples[k])
-        final_injected_signal_sample.dump(result_paths.sample_file_path(params.sig_sample_id, mkdir=True, overwrite=True, customname='injected_{}_{}'.format(params.sig_sample_id,inj)))
+        final_injected_signal_sample.dump(result_paths.sample_file_path(params.sig_sample_id,additional_dir=comments[0], mkdir=True, overwrite=True, customname='injected_{}_{}'.format(params.sig_sample_id,inj)))
 
 
     sig_cut_dict = {}
@@ -467,6 +468,6 @@ if __name__ == "__main__":
             csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv','QCD_MCOrig_asimov',comments[0])            
             df.to_csv('{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(csv_name,int(inv_quant*100)))
         else:
-            print('There should be no signal injection'); sys.exit(0)
-            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv_{}_{}'.format(sample,inj),'unblind_data_SR')
+            #print('There should be no signal injection'); sys.exit(0)
+            csv_name = os.path.join(experiment.model_dir_qr,'models_lmfit_csv',f'{sample}_{inj}',comments[0])
             df.to_csv('{}/sig_lmfit_modelresult_quant_q{:02}.csv'.format(csv_name,int(inv_quant*100)))
